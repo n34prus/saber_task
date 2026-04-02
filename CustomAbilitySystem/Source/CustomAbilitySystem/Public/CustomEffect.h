@@ -15,6 +15,13 @@ class CUSTOMABILITYSYSTEM_API UCustomEffect : public UObject
 
 public:
 
+    // seconds, 0 = single exec
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Effect")
+    float Period = 0.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Effect")
+    FTimerHandle TimerHandle;
+    
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Effect")
     TArray<FCustomModifier> Modifiers;
     
@@ -92,5 +99,8 @@ public:
                 }
             }
         }
+
+        // Timer
+        //if ()
     }
 };

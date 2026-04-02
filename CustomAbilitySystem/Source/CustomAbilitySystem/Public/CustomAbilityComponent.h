@@ -33,12 +33,16 @@ public:
 protected:
 	// active context during execution
 	TMap<UCustomAbility*, FCustomAbilityExecutionContext> ExecutionContexts;
+	void PlayAbilityAnimation(UCustomAbility* Ability);
 
 public:
 
 	UFUNCTION(BlueprintCallable, Category="Abilities")
 	bool TryActivateAbility(UCustomAbility* Ability);
 	
+	UFUNCTION(BlueprintCallable, Category="Abilities")
+	bool TryActivateAbilityByClass(TSoftClassPtr<UCustomAbility> AbilityClassSoft);
+
 	UFUNCTION(BlueprintCallable, Category="Abilities")
 	void CancelAbility(UCustomAbility* Ability);
 	

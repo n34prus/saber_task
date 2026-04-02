@@ -40,6 +40,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ability")
 	TArray<FCustomModifier> Modifiers;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation")
+	UAnimMontage* MontageToPlay;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Ability")
 	bool bIsActive;

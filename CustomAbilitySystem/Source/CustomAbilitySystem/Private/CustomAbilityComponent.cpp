@@ -77,10 +77,43 @@ bool UCustomAbilityComponent::TryActivateAbility(UCustomAbility* Ability)
     ActiveAbilities.Add(Ability);
     
     Ability->StartExecution(CurrentExecutionContext);
+    PlayAbilityAnimation(Ability);
     
     Cooldowns.Add(Ability, GetWorld()->GetTimeSeconds() + Ability->Cooldown);
 
     return true;
+}
+
+bool UCustomAbilityComponent::TryActivateAbilityByClass(TSoftClassPtr<UCustomAbility> AbilityClassSoft)
+{
+    if (!AbilityClassSoft.IsValid())
+    {
+        UClass* LoadedClass = AbilityClassSoft.LoadSynchronous();
+        if (!LoadedClass)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("Failed to load ability class!"));
+            return false;
+        }
+        AbilityClassSoft = LoadedClass;
+    }
+    
+    UCustomAbility* AbilityObj = NewObject<UCustomAbility>(this, AbilityClassSoft.Get());
+    if (!AbilityObj) return false;
+    
+    return TryActivateAbility(AbilityObj);
+}
+
+
+void UCustomAbilityComponent::PlayAbilityAnimation(UCustomAbility* Ability)
+{
+    if (!Ability || !Ability->MontageToPlay) return;
+   
+    auto * SkeletalMeshComponent = GetOwner()->FindComponentByClass<USkeletalMeshComponent>();
+    if (!SkeletalMeshComponent) return;
+    UAnimInstance* AnimInst = SkeletalMeshComponent->GetAnimInstance();
+    if (!AnimInst) return;
+
+    AnimInst->Montage_Play(Ability->MontageToPlay);
 }
 
 void UCustomAbilityComponent::CancelAbility(UCustomAbility* Ability)

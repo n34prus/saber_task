@@ -54,16 +54,16 @@ struct CUSTOMABILITYSYSTEM_API FCustomAbilityExecutionContext
 
 public:
 
-    UPROPERTY(BlueprintReadOnly)
+    UPROPERTY(BlueprintReadWrite)
     AActor* Source = nullptr;
     
-    UPROPERTY(BlueprintReadOnly)
+    UPROPERTY(BlueprintReadWrite)
     TArray<FCustomTargetInfo> Targets;
     
-    UPROPERTY(BlueprintReadOnly)
+    UPROPERTY(BlueprintReadWrite)
     UCustomAbility* Ability = nullptr;
 
-    UPROPERTY(BlueprintReadOnly)
+    UPROPERTY(BlueprintReadWrite)
     TMap<FName, float> SnapshotParams;
 
     UPROPERTY(BlueprintReadWrite)
