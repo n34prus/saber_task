@@ -16,7 +16,7 @@ class COMBAT_API UCpStatisticSaveGame : public USaveGame
 
 public:
 	UPROPERTY()
-	float TotalDamageAllTime = 0.f;
+	TMap<FName, float> TotalStats;
 };
 
 UCLASS()
@@ -31,33 +31,45 @@ public:
 	virtual void Deinitialize() override;
 	
 	UFUNCTION(BlueprintPure)
-	float GetSessionDamageProduced() const { return SessionDamageProduced; }
-
+	float GetSessionStat(FName StatName) const;
 	UFUNCTION(BlueprintPure)
-	float GetTotalDamageProduced() const { return TotalDamageProduced; }
-
-	UFUNCTION(BlueprintPure)
-	float GetSessionDamageRecieved() const { return SessionDamageRecieved; }
-
-	UFUNCTION(BlueprintPure)
-	float GetTotalDamageRecieved() const { return TotalDamageRecieved; }
-
-	UFUNCTION(BlueprintPure)
-	int GetSessionCritCount() const { return SessionCritCount; }
-
-	UFUNCTION(BlueprintPure)
-	int GetTotalCritCount() const { return TotalCritCount; }
+	float GetTotalStat(FName StatName) const;
+	UFUNCTION(BlueprintCallable)
+	void ClearTotalStat();
 
 private:
-	
-	float SessionDamageProduced = 0.f;
-	float TotalDamageProduced = 0.f;
 
-	float SessionDamageRecieved = 0.f;
-	float TotalDamageRecieved = 0.f;
+	static constexpr const TCHAR* StatNames[4] = {
+		TEXT("DamageProduced"),
+		TEXT("DamageRecieved"),
+		TEXT("CritCount"),
+		TEXT("ExperiencePoints")
+	};
 
-	int SessionCritCount = 0;
-	int TotalCritCount = 0;
+	static constexpr bool IsValidStatName(const TCHAR* Name)
+	{
+		auto StrEq = [](const TCHAR* A, const TCHAR* B)
+		{
+			while (*A && *B)
+			{
+				if (*A != *B) return false;
+				++A;
+				++B;
+			}
+			return *A == *B;
+		};
+		for (auto N : StatNames)
+		{
+			if (StrEq(N, Name)) return true;
+		}
+		return false;
+	}
+
+	UPROPERTY()
+	TMap<FName, float> SessionStats;
+
+	UPROPERTY()
+	TMap<FName, float> TotalStats;
 
 	UPROPERTY()
 	TObjectPtr<UCpStatisticSaveGame> SaveObject;
@@ -67,14 +79,13 @@ private:
 	FTimerHandle ScanTimerHandle;
 	AActor* PlayerActor;
 
-	void OnActorSpawned(AActor* Actor);
-
 	void BindToNewPlayer(AActor* OldPlayerActor, AActor* NewPlayerActor);
 	
-	void BindToPlayerDamage(AActor* NewPlayerActor);
+	void BindToCombatEvents();
 	void BindToPlayerModifiers(AActor* NewPlayerActor);
-	void UnbindFromPlayerDamage(AActor* OldPlayerActor);
+	void UnbindFromCombatEvents();
 	void UnbindFromPlayerModifiers(AActor* OldPlayerActor);
+	
 
 	UFUNCTION()
 	void Scan();
@@ -83,10 +94,18 @@ private:
 	void HandleDamage(AActor* DamageCauser, AActor* Target, float Value);
 
 	UFUNCTION()
-	void HandleModifier(const FName Message, const UObject* Source);
-	
-	void Load();
+	void HandleDeath(AActor* DeadActor);
 
+	UFUNCTION()
+	void HandleCombatStateChanged(ECpCombatState NewCombatState);
+
+	UFUNCTION()
+	void HandleModifier(const FName Message, const UObject* Source);
+
+	UFUNCTION(BlueprintCallable)
+	void Load();
+	
+	UFUNCTION(BlueprintCallable)
 	void Save();
 };
 

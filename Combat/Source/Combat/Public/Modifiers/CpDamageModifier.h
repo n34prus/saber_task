@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "CpCombatDamageTypes.h"
+#include "CpCombatDamagePacket.h"
 #include "CpDamageModifier.generated.h"
 
 UCLASS(Abstract, Blueprintable, ClassGroup=(Combat))

@@ -19,6 +19,9 @@ public:
 	float GetHealthPercent() const;
 
 	UFUNCTION(BlueprintCallable, Category="Combat")
+	float GetHealthValue() const;
+
+	UFUNCTION(BlueprintCallable, Category="Combat")
 	bool IsDead() const;
 
 	UFUNCTION(BlueprintCallable, Category="Combat")

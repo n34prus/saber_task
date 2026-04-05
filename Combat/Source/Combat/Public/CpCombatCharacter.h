@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "CpCombatDamageTypes.h"
+#include "CpCombatDamagePacket.h"
 #include "Modifiers/CpDamageModifierComponent.h"
 #include "AbilitySystem/CombatAbilityComponent.h"
 #include "CpCombatCharacter.generated.h"

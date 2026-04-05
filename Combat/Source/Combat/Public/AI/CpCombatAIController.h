@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
 #include "CpCombatCharacter.h"
+#include "CpCombatSubsystem.h"
 #include "CpCombatAIController.generated.h"
 
 UCLASS()
@@ -51,13 +52,15 @@ protected:
 		// ring
 		if (Dist >= InnerRadius && Dist <= OuterRadius)
 		{
-			bWasInner = false;
+			float Mux = bWasInner ? -1.f : 0.2f;
+			ControlledPawn->AddMovementInput(ToPlayer, Mux);
 			return;
 		}
 
 		// outer
 		if (Dist > OuterRadius)
 		{
+			bWasInner = false;
 			const FVector TargetPos = PlayerLoc - ToPlayer * ((InnerRadius + OuterRadius) * 0.5f);
 			ControlledPawn->AddMovementInput(ToPlayer);
 		}
@@ -65,7 +68,7 @@ protected:
 		else if (Dist < InnerRadius)
 		{
 			const FVector TargetPos = PlayerLoc - ToPlayer * OuterRadius;
-			ControlledPawn->AddMovementInput(-ToPlayer);
+			ControlledPawn->AddMovementInput(ToPlayer, -0.75f);
 
 			float RandVal = bWasInner ? 1.f : FMath::FRand();
 			if (RandVal < ChanceToAtack)
@@ -73,7 +76,15 @@ protected:
 				UCombatAbilityComponent* AbilityComponent = ControlledPawn->FindComponentByClass<UCombatAbilityComponent>();
 				if (AbilityComponent)
 				{
-					AbilityComponent->ActivateAbilityByTag("Attack");
+					// same as character: better to add/remove abils instead of this check
+					if (auto * CombatSubsystem = UCpCombatSubsystem::Get(GetWorld()))
+					{
+						if ((CombatSubsystem->GetCombatState() == ECpCombatState::CpCombat_Active) &&
+							(CombatSubsystem->IsMemberRegistered(ControlledPawn)))
+						{
+							AbilityComponent->ActivateAbilityByTag("Attack");
+						}
+					}
 				}
 			}
 			bWasInner = true;
@@ -83,7 +94,7 @@ protected:
 protected:
 
 	UPROPERTY(EditAnywhere, Category="AI")
-	float InnerRadius = 200.f;
+	float InnerRadius = 150.f;
 	
 	UPROPERTY(EditAnywhere, Category="AI")
 	float OuterRadius = 300.f;
@@ -92,7 +103,7 @@ protected:
 	float AcceptanceRadius = 25.f;
 
 	UPROPERTY(EditAnywhere, Category="AI")
-	float ChanceToAtack = .5f;
+	float ChanceToAtack = .3f;
 
 private:
 	bool bWasInner = false;

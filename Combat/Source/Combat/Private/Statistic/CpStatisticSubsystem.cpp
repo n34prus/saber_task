@@ -1,12 +1,18 @@
 ﻿#include "Statistic/CpStatisticSubsystem.h"
 #include "Modifiers/CpDamageModifierComponent.h"
-#include "CpCombatDamageLibrary.h"
+#include "CpCombatSubsystem.h"
 
 void UCpStatisticSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
-	Load();
+	for (const auto * Stat : StatNames)
+	{
+		TotalStats.Add(Stat, 0.f);
+		SessionStats.Add(Stat, 0.f);
+	}
+	
+	Load();	// override total stats
 
 	// todo: better to use UGameplayStatics delegates
 	GetWorld()->GetTimerManager().SetTimer(
@@ -16,22 +22,6 @@ void UCpStatisticSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	0.5f,
 	true
 	);
-	/*
-	if (UWorld* World = GetWorld())
-	{
-		if (APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0))
-		{
-			if (APawn* Pawn = PC->GetPawn())
-			{
-				BindToPlayerDamage(Pawn);
-			}
-
-		}
-		
-		World->AddOnActorSpawnedHandler(
-			FOnActorSpawned::FDelegate::CreateUObject(this, &UCpStatisticSubsystem::OnActorSpawned)
-		);
-	}*/
 }
 
 void UCpStatisticSubsystem::Deinitialize()
@@ -40,34 +30,41 @@ void UCpStatisticSubsystem::Deinitialize()
 	Super::Deinitialize();
 }
 
-void UCpStatisticSubsystem::OnActorSpawned(AActor* Actor)
+float UCpStatisticSubsystem::GetSessionStat(FName StatName) const
 {
-	if (!Actor) return;
-		
-	APawn* Pawn = Cast<APawn>(Actor);
-	if (!Pawn) return;
+	return SessionStats[StatName];
+}
 
-	APlayerController* PC = Pawn->GetController<APlayerController>();
-	if (!PC) return;
+float UCpStatisticSubsystem::GetTotalStat(FName StatName) const
+{
+	return TotalStats[StatName];
+}
 
-	if (PC->GetLocalPlayer() && PC->GetLocalPlayer()->GetControllerId() == 0)
+void UCpStatisticSubsystem::ClearTotalStat()
+{
+	for (const auto * Stat : StatNames)
 	{
-		BindToPlayerDamage(Pawn);
+		TotalStats.Add(Stat, 0.f);
+		SessionStats.Add(Stat, 0.f);
 	}
 }
 
 void UCpStatisticSubsystem::BindToNewPlayer(AActor* OldPlayerActor, AActor* NewPlayerActor)
 {
-	UnbindFromPlayerDamage(OldPlayerActor);
+	UnbindFromCombatEvents();
 	UnbindFromPlayerModifiers(OldPlayerActor);
-	BindToPlayerDamage(NewPlayerActor);
+	BindToCombatEvents();
 	BindToPlayerModifiers(NewPlayerActor);
 }
 
-void UCpStatisticSubsystem::BindToPlayerDamage(AActor* NewPlayerActor)
+void UCpStatisticSubsystem::BindToCombatEvents()
 {
-	if (!NewPlayerActor) return;
-	UCpCombatDamageLibrary::OnDealDamage.AddUObject(this, &UCpStatisticSubsystem::HandleDamage);
+	if (auto * CombatSubsystem = UCpCombatSubsystem::Get(GetWorld()))
+	{
+		CombatSubsystem->OnCombatMemberDealDamage.AddDynamic(this, &UCpStatisticSubsystem::HandleDamage);
+		CombatSubsystem->OnCombatStateChanged.AddDynamic(this, &UCpStatisticSubsystem::HandleCombatStateChanged);
+		CombatSubsystem->OnCombatMemberDeath.AddDynamic(this, &UCpStatisticSubsystem::HandleDeath);
+	}
 }
 
 void UCpStatisticSubsystem::BindToPlayerModifiers(AActor* NewPlayerActor)
@@ -78,10 +75,14 @@ void UCpStatisticSubsystem::BindToPlayerModifiers(AActor* NewPlayerActor)
 	Component->OnMessageCalled.AddDynamic(this, &UCpStatisticSubsystem::HandleModifier);
 }
 
-void UCpStatisticSubsystem::UnbindFromPlayerDamage(AActor* OldPlayerActor)
+void UCpStatisticSubsystem::UnbindFromCombatEvents()
 {
-	if (!OldPlayerActor) return;
-	UCpCombatDamageLibrary::OnDealDamage.RemoveAll(this);
+	if (auto * CombatSubsystem = UCpCombatSubsystem::Get(GetWorld()))
+	{
+		CombatSubsystem->OnCombatMemberDealDamage.RemoveAll(this);
+		CombatSubsystem->OnCombatStateChanged.RemoveAll(this);
+		CombatSubsystem->OnCombatMemberDeath.RemoveAll(this);
+	}
 }
 
 void UCpStatisticSubsystem::UnbindFromPlayerModifiers(AActor* OldPlayerActor)
@@ -108,15 +109,50 @@ void UCpStatisticSubsystem::HandleDamage(AActor* DamageCauser, AActor* Target, f
 	if (DamageCauser == Target) return;
 	if (DamageCauser == PlayerActor)
 	{
-		SessionDamageProduced += Value;
-		TotalDamageProduced += Value;
+		constexpr const TCHAR* StatName = TEXT("DamageProduced");
+		static_assert(IsValidStatName(StatName), "Invalid name!");
+		SessionStats[StatName] += Value;
+		//SessionDamageProduced += Value;
 		return;
 	}
 	if (Target == PlayerActor)
 	{
-		SessionDamageRecieved += Value;
-		TotalDamageRecieved += Value;
+		constexpr const TCHAR* StatName = TEXT("DamageRecieved");
+		static_assert(IsValidStatName(StatName), "Invalid name!");
+		SessionStats[StatName] += Value;
+		//SessionDamageRecieved += Value;
 		return;
+	}
+}
+
+void UCpStatisticSubsystem::HandleDeath(AActor* DeadActor)
+{
+	if (DeadActor != PlayerActor)
+	{
+		constexpr const TCHAR* StatName = TEXT("ExperiencePoints");
+		static_assert(IsValidStatName(StatName), "Invalid name!");
+		SessionStats[StatName] += 100;
+		//SessionExperiencePoints += 100;	// can be overrided by enemy archetype
+	}
+}
+
+void UCpStatisticSubsystem::HandleCombatStateChanged(ECpCombatState NewCombatState)
+{
+	switch (NewCombatState)
+	{
+	case ECpCombatState::CpCombat_None:
+			for (auto Name : StatNames)
+				SessionStats[Name] = 0.f;
+			break;
+
+		case ECpCombatState::CpCombat_Finished:
+			for (auto Name : StatNames)
+				TotalStats[Name] += SessionStats[Name];
+			Save();
+			break;
+
+		default:
+			break;
 	}
 }
 
@@ -124,8 +160,10 @@ void UCpStatisticSubsystem::HandleModifier(const FName Message, const UObject* S
 {
 	if (Message == "Crit")
 	{
-		SessionCritCount++;
-		TotalCritCount++;
+		constexpr const TCHAR* StatName = TEXT("CritCount");
+		static_assert(IsValidStatName(StatName), "Invalid name!");
+		SessionStats[StatName] ++;
+		//SessionCritCount++;
 	}
 }
 
@@ -139,7 +177,11 @@ void UCpStatisticSubsystem::Load()
 
 		if (SaveObject)
 		{
-			TotalDamageProduced = SaveObject->TotalDamageAllTime;
+			for (auto Stat : StatNames)
+			{
+				if (SaveObject->TotalStats.Contains(Stat))
+					TotalStats[Stat] = SaveObject->TotalStats[Stat];
+			}
 		}
 	}
 	else
@@ -159,7 +201,7 @@ void UCpStatisticSubsystem::Save()
 		);
 	}
 
-	SaveObject->TotalDamageAllTime = TotalDamageProduced;
+	SaveObject->TotalStats = TotalStats;
 
 	UGameplayStatics::SaveGameToSlot(SaveObject, SlotName, UserIndex);
 }

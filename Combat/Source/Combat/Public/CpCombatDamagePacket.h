@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "CpCombatDamageTypes.generated.h"
+#include "CpCombatDamagePacket.generated.h"
 
 USTRUCT(BlueprintType)
 struct FCombatDamagePacket

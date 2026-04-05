@@ -1,7 +1,7 @@
 ﻿#include "AbilitySystem/CombatAbility_Attack.h"
 #include "CpCombatHealthComponent.h"
-#include "CpCombatDamageTypes.h"
-#include "CpCombatDamageLibrary.h"
+#include "CpCombatDamagePacket.h"
+#include "CpCombatSubsystem.h"
 #include "Engine/OverlapResult.h"
 //#include "GameFramework/Character.h"
 
@@ -76,8 +76,12 @@ void UCombatAbility_Attack::Activate()
 		Packet.CriticalMultiplier = AttackCriticalMultiplier;
 		Packet.ArmorPenetration = AttackArmorPenetration;
 
-		UCpCombatDamageLibrary::ApplyCombatDamage(OwnerActor, HitActor, Packet);
-
+		
+		if (auto * CombatSubsystem = UCpCombatSubsystem::Get(GetWorld()))
+		{
+			CombatSubsystem->ApplyCombatDamage(OwnerActor, HitActor, Packet);
+		}
+		
 		break;
 	}
 }

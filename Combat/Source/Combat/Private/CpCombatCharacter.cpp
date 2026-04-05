@@ -2,6 +2,7 @@
 
 #include "Camera/CameraComponent.h"
 #include "CpCombatHealthComponent.h"
+#include "CpCombatSubsystem.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
@@ -39,14 +40,6 @@ void ACpCombatCharacter::BeginPlay()
         HealthComponent->OnDeath.AddDynamic(this, &ACpCombatCharacter::OnDeath);
         HealthComponent->OnHealthChanged.AddDynamic(this, &ACpCombatCharacter::OnHealthChanged);
     }
-    /*
-    if (AbilityComponent)
-    {
-        AbilityComponent->AddAbilityByClass(AttackAbility.LoadSynchronous());
-        AbilityComponent->AddAbilityByClass(DashAbility.LoadSynchronous());
-        AbilityComponent->AddAbilityByClass(HitReactionAbility.LoadSynchronous());
-    }
-    */
 }
 
 void ACpCombatCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -94,15 +87,19 @@ void ACpCombatCharacter::LookUp(float Value)
 
 void ACpCombatCharacter::Attack()
 {
-    //auto AbilityClass = AttackAbility.LoadSynchronous();
-    //AbilityComponent->ActivateAbilityByClass(AbilityClass);
-    AbilityComponent->ActivateAbilityByTag("Attack");
+    // better to add/remove abilities on Register/Unregister actor as member
+    if (auto * CombatSubsystem = UCpCombatSubsystem::Get(GetWorld()))
+    {
+        if ((CombatSubsystem->GetCombatState() == ECpCombatState::CpCombat_Active) &&
+            (CombatSubsystem->IsMemberRegistered(this)))
+        {
+            AbilityComponent->ActivateAbilityByTag("Attack");
+        }
+    }
 }
 
 void ACpCombatCharacter::Dash()
 {
-    //auto AbilityClass = DashAbility.LoadSynchronous();
-    //AbilityComponent->ActivateAbilityByClass(AbilityClass);
     AbilityComponent->ActivateAbilityByTag("Dash");
 }
 
@@ -110,8 +107,6 @@ void ACpCombatCharacter::OnHealthChanged(float NewHealth, float Delta)
 {
     if (NewHealth <= 0.f) return;
     if (Delta >= 0.f) return;
-    //auto AbilityClass = HitReactionAbility.LoadSynchronous();
-    //AbilityComponent->ActivateAbilityByClass(AbilityClass);
     AbilityComponent->ActivateAbilityByTag("HitReaction");
 }
 

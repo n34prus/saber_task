@@ -35,6 +35,11 @@ float UCpCombatHealthComponent::GetHealthPercent() const
     return MaxHealth > 0.f ? CurrentHealth / MaxHealth : 0.f;
 }
 
+float UCpCombatHealthComponent::GetHealthValue() const
+{
+    return CurrentHealth;
+}
+
 bool UCpCombatHealthComponent::IsDead() const
 {
     return CurrentHealth <= 0.f;
@@ -82,6 +87,9 @@ void UCpCombatHealthComponent::HandleDamage(
 
     if (CurrentHealth <= 0.f)
     {
-        OnDeath.Broadcast(GetOwner());
+        GetWorld()->GetTimerManager().SetTimerForNextTick([this]()
+        {
+            OnDeath.Broadcast(GetOwner());
+        });
     }
 }
