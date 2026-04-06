@@ -7,6 +7,7 @@ public class AbilitySystemModule : ModuleRules
 	public AbilitySystemModule(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
+		bUseUnity = false;
 		
 		PublicIncludePaths.AddRange(
 			new string[] {
@@ -28,9 +29,6 @@ public class AbilitySystemModule : ModuleRules
 				"Core",
 				"CoreUObject",
 				"Engine",
-				"InputCore",
-				"AIModule"
-				// ... add other public dependencies that you statically link with here ...
 			}
 			);
 			
@@ -38,12 +36,7 @@ public class AbilitySystemModule : ModuleRules
 		PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"CoreUObject",
-				"Engine",
-				"Slate",
-				"SlateCore",
-				"UMG" 
-				// ... add private dependencies that you statically link with here ...	
+
 			}
 			);
 		

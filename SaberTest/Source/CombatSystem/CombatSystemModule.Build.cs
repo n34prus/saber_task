@@ -7,7 +7,7 @@ public class CombatSystemModule : ModuleRules
 	public CombatSystemModule(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
-		
+		bUseUnity = false;
 		PublicIncludePaths.AddRange(
 			new string[] {
 				// ... add public include paths required here ...
@@ -28,8 +28,8 @@ public class CombatSystemModule : ModuleRules
 				"Core",
 				"CoreUObject",
 				"Engine",
-				"InputCore",
-				"AIModule",
+				//"InputCore",
+				//"AIModule",
 				// ... add other public dependencies that you statically link with here ...
 				"HealthSystemModule",
 				"AbilitySystemModule"
@@ -40,11 +40,11 @@ public class CombatSystemModule : ModuleRules
 		PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"CoreUObject",
-				"Engine",
-				"Slate",
-				"SlateCore",
-				"UMG" 
+				//"CoreUObject",
+				//"Engine",
+				//"Slate",
+				//"SlateCore",
+				//"UMG" 
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

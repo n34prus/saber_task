@@ -2,7 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "ASCombatDamagePacket.h"
 #include "ASDamageModifierComponent.h"
 #include "ASAbilityComponent.h"
 #include "GICombatCharacter.generated.h"
@@ -37,18 +36,7 @@ protected:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Combat", meta=(AllowPrivateAccess="true"))
     TObjectPtr<UASDamageModifierComponent> ModifierComponent;
-
-    /*
-    UPROPERTY(EditDefaultsOnly, Category="Combat", meta=(AllowPrivateAccess="true"))
-    TSoftClassPtr<UCombatAbility> AttackAbility;
-
-    UPROPERTY(EditDefaultsOnly, Category="Combat", meta=(AllowPrivateAccess="true"))
-    TSoftClassPtr<UCombatAbility> DashAbility;
-
-    UPROPERTY(EditDefaultsOnly, Category="Combat", meta=(AllowPrivateAccess="true"))
-    TSoftClassPtr<UCombatAbility> HitReactionAbility;
-    */
-
+    
     void MoveForward(float Value);
     void MoveRight(float Value);
     void Turn(float Value);

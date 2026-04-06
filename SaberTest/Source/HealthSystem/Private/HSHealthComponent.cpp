@@ -1,6 +1,4 @@
 ﻿#include "HSHealthComponent.h"
-#include "GameFramework/Actor.h"
-#include "GameFramework/DamageType.h"
 
 UHSHealthComponent::UHSHealthComponent()
 {

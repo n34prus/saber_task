@@ -2,10 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
-#include "Kismet/GameplayStatics.h"
-#include "GameFramework/Character.h"
-#include "GICombatCharacter.h"
-#include "CSCombatSubsystem.h"
 #include "GICombatAIController.generated.h"
 
 UCLASS()
@@ -18,89 +14,11 @@ public:
 	{
 		//PrimaryActorTick.bCanEverTick = true;
 	}
-	virtual void OnUnPossess() override
-	{
-		Super::OnUnPossess();
-		Destroy();
-	}
-	
+	virtual void OnUnPossess() override;
+
 protected:
 	
-	virtual void Tick(float DeltaSeconds) override
-	{
-		Super::Tick(DeltaSeconds);
-
-		ACharacter* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
-		APawn* ControlledPawn = GetPawn();
-
-		if (!Player || !ControlledPawn)
-		{
-			return;
-		}
-
-		const FVector MyLoc = ControlledPawn->GetActorLocation();
-		const FVector PlayerLoc = Player->GetActorLocation();
-
-		FVector ToPlayer = PlayerLoc - MyLoc;
-		const float Dist = ToPlayer.Size();
-		
-		ToPlayer.Z = 0.f;
-		ToPlayer.Normalize();
-
-		ControlledPawn->SetActorRotation(ToPlayer.Rotation());
-
-		// ring
-		if (Dist >= InnerRadius && Dist <= OuterRadius)
-		{
-			float Mux = bWasInner ? -1.f : 0.2f;
-			ControlledPawn->AddMovementInput(ToPlayer, Mux);
-			return;
-		}
-
-		// outer
-		if (Dist > OuterRadius)
-		{
-			bWasInner = false;
-			const FVector TargetPos = PlayerLoc - ToPlayer * ((InnerRadius + OuterRadius) * 0.5f);
-			ControlledPawn->AddMovementInput(ToPlayer);
-		}
-		// inner
-		else if (Dist < InnerRadius)
-		{
-			const FVector TargetPos = PlayerLoc - ToPlayer * OuterRadius;
-			ControlledPawn->AddMovementInput(ToPlayer, -0.75f);
-
-			float RandVal = bWasInner ? 1.f : FMath::FRand();
-			if (RandVal < ChanceToAtack)
-			{
-				UASAbilityComponent* AbilityComponent = ControlledPawn->FindComponentByClass<UASAbilityComponent>();
-				if (AbilityComponent)
-				{
-					// same as character: better to add/remove abils instead of this check
-					if (auto * CombatSubsystem = UCSCombatSubsystem::Get(GetWorld()))
-					{
-						if ((CombatSubsystem->GetCombatState() == ECpCombatState::CpCombat_Active) &&
-							(CombatSubsystem->IsMemberRegistered(ControlledPawn)))
-						{
-							TWeakObjectPtr<UASAbilityComponent> WeakAC = AbilityComponent;
-							FTimerDelegate Delegate;
-							Delegate.BindLambda([WeakAC]()
-							{
-								if (WeakAC.IsValid())
-								{
-									WeakAC.Get()->ActivateAbilityByTag("Attack");
-								}
-							});
-							FTimerHandle Tmp;
-							GetWorldTimerManager().SetTimer(Tmp,	Delegate, 0.3f,	false);
-							//AbilityComponent->ActivateAbilityByTag("Attack");
-						}
-					}
-				}
-			}
-			bWasInner = true;
-		}
-	}
+	virtual void Tick(float DeltaSeconds) override;
 
 protected:
 

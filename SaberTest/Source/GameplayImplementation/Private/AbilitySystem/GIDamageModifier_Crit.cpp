@@ -1,6 +1,5 @@
 ﻿#include "AbilitySystem/GIDamageModifier_Crit.h"
 #include "Math/UnrealMathUtility.h"
-#include "Kismet/KismetSystemLibrary.h"
 
 void UGIDamageModifier_Crit::ModifyOutgoingDamage(FASCombatDamagePacket& Packet, AActor* Target, FName& Msg) const
 {

@@ -2,8 +2,8 @@
 
 #include "ASDamageModifierComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "GameFramework/DamageType.h"
-#include "Components/ActorComponent.h"
+//#include "GameFramework/DamageType.h"
+//#include "Components/ActorComponent.h"
 
 static void ApplyModifiersFromActor(AActor* Actor, bool bOutgoing, FASCombatDamagePacket& Packet, AActor* OtherActor)
 {

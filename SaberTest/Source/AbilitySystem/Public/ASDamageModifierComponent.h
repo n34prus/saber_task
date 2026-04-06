@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
 #include "ASDamageModifier.h"
 #include "ASDamageModifierComponent.generated.h"
 
@@ -14,7 +13,7 @@ class ABILITYSYSTEMMODULE_API UASDamageModifierComponent : public UActorComponen
 
 public:
 
-	void BeginPlay() override;
+	virtual void BeginPlay() override;
 	
 	UASDamageModifier* AddModifierByClass(TSubclassOf<UASDamageModifier> ModifierClass);
 

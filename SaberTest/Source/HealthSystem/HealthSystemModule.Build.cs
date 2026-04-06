@@ -7,7 +7,7 @@ public class HealthSystemModule : ModuleRules
 	public HealthSystemModule(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
-		
+		bUseUnity = false;
 		PublicIncludePaths.AddRange(
 			new string[] {
 				// ... add public include paths required here ...
@@ -28,9 +28,6 @@ public class HealthSystemModule : ModuleRules
 				"Core",
 				"CoreUObject",
 				"Engine",
-				"InputCore",
-				"AIModule"
-				// ... add other public dependencies that you statically link with here ...
 			}
 			);
 			
@@ -38,12 +35,7 @@ public class HealthSystemModule : ModuleRules
 		PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"CoreUObject",
-				"Engine",
-				"Slate",
-				"SlateCore",
-				"UMG" 
-				// ... add private dependencies that you statically link with here ...	
+				
 			}
 			);
 		

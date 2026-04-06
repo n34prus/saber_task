@@ -28,8 +28,8 @@ public class StatisticSystemModule : ModuleRules
 				"Core",
 				"CoreUObject",
 				"Engine",
-				"InputCore",
-				"AIModule",
+				//"InputCore",
+				//"AIModule",
 				// ... add other public dependencies that you statically link with here ...
 				"HealthSystemModule",
 				"AbilitySystemModule",
@@ -41,11 +41,11 @@ public class StatisticSystemModule : ModuleRules
 		PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"CoreUObject",
-				"Engine",
-				"Slate",
-				"SlateCore",
-				"UMG" 
+				//"CoreUObject",
+				//"Engine",
+				//"Slate",
+				//"SlateCore",
+				//"UMG" 
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

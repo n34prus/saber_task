@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/Object.h"
 #include "ASAbility.generated.h"
 
 UCLASS(Abstract, Blueprintable)

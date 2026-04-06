@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
 #include "ASAbilityComponent.generated.h"
 
 class UASAbility;

@@ -1,11 +1,11 @@
 ﻿#pragma once
 
-#include "CoreMinimal.h"
-#include "Subsystems/GameInstanceSubsystem.h"
-#include "Kismet/GameplayStatics.h"
-#include "GameFramework/Actor.h"
-#include "GameFramework/PlayerController.h"
-#include "Engine/World.h"
+//#include "CoreMinimal.h"
+//#include "Subsystems/GameInstanceSubsystem.h"
+//
+//#include "GameFramework/Actor.h"
+//#include "GameFramework/PlayerController.h"
+//#include "Engine/World.h"
 #include "GameFramework/SaveGame.h"
 #include "SSStatisticSubsystem.generated.h"
 

@@ -1,13 +1,10 @@
 ﻿#include "GICombatCharacter.h"
 
 #include "Camera/CameraComponent.h"
-#include "HSHealthComponent.h"
 #include "CSCombatSubsystem.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Components/InputComponent.h"
 
 AGICombatCharacter::AGICombatCharacter()
 {
