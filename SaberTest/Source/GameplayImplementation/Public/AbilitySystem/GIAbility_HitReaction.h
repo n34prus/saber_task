@@ -12,7 +12,7 @@ class GAMEPLAYIMPLEMENTATIONMODULE_API UGIAbility_HitReaction : public UASAbilit
 protected:
 	UGIAbility_HitReaction()
 	{
-		Tags.Add("HitReaction");
+		Tags.Add(PluginTags::TAG_Ability_HitReaction);
 	}
 	virtual void Activate() override;
 };

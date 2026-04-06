@@ -91,21 +91,21 @@ void AGICombatCharacter::Attack()
         if ((CombatSubsystem->GetCombatState() == ECpCombatState::CpCombat_Active) &&
             (CombatSubsystem->IsMemberRegistered(this)))
         {
-            AbilityComponent->ActivateAbilityByTag("Attack");
+            AbilityComponent->ActivateAbilityByTag(PluginTags::TAG_Ability_Attack);
         }
     }
 }
 
 void AGICombatCharacter::Dash()
 {
-    AbilityComponent->ActivateAbilityByTag("Dash");
+    AbilityComponent->ActivateAbilityByTag(PluginTags::TAG_Ability_Dash);
 }
 
 void AGICombatCharacter::OnHealthChanged(float NewHealth, float Delta)
 {
     if (NewHealth <= 0.f) return;
     if (Delta >= 0.f) return;
-    AbilityComponent->ActivateAbilityByTag("HitReaction");
+    AbilityComponent->ActivateAbilityByTag(PluginTags::TAG_Ability_HitReaction);
 }
 
 void AGICombatCharacter::OnDeath(AActor* DeadActor)

@@ -12,7 +12,7 @@ class GAMEPLAYIMPLEMENTATIONMODULE_API UGIAbility_Dash : public UASAbility
 protected:
 	UGIAbility_Dash()
 	{
-		Tags.Add("Dash");
+		Tags.Add(PluginTags::TAG_Ability_Dash);
 	}
 	virtual void Activate() override;
 

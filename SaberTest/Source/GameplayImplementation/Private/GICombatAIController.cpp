@@ -71,7 +71,7 @@ void AGICombatAIController::Tick(float DeltaSeconds)
 						{
 							if (WeakAC.IsValid())
 							{
-								WeakAC.Get()->ActivateAbilityByTag("Attack");
+								WeakAC.Get()->ActivateAbilityByTag(PluginTags::TAG_Ability_Attack);
 							}
 						});
 						FTimerHandle Tmp;

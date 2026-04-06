@@ -12,7 +12,7 @@ public:
 	UGIAbility_Attack()
 	{
 		Cooldown = 0.3f;
-		Tags.Add("Attack");
+		Tags.Add(PluginTags::TAG_Ability_Attack);
 	}
 	
 protected:

@@ -14,4 +14,13 @@ namespace PluginTags
 	
 	UE_DEFINE_GAMEPLAY_TAG(TAG_Health_Changed,			"Health.Changed");
 	UE_DEFINE_GAMEPLAY_TAG(TAG_Health_Death,			"Health.Death");
+
+	UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Attack,			"Ability.Attack");
+	UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Dash,			"Ability.Dash");
+	UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_HitReaction,		"Ability.HitReaction");
+
+	UE_DEFINE_GAMEPLAY_TAG(TAG_Stat_DamageProduced,		"Stat.DamageProduced");
+	UE_DEFINE_GAMEPLAY_TAG(TAG_Stat_DamageRecieved,		"Stat.DamageReceived");
+	UE_DEFINE_GAMEPLAY_TAG(TAG_Stat_CritCount,			"Stat.CritCount");
+	UE_DEFINE_GAMEPLAY_TAG(TAG_Stat_ExperiencePoints,	"Stat.ExperiencePoints");
 }

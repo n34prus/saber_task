@@ -49,7 +49,7 @@ float UASAbility::GetCooldownRemaining() const
 	return FMath::Max(0.0f, Cooldown - Elapsed);
 }
 
-const TArray<FName>& UASAbility::GetTags() const
+const TArray<FGameplayTag>& UASAbility::GetTags() const
 {
 	return Tags;
 }

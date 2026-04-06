@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "PTGameplayTags.h"
 #include "ASAbility.generated.h"
 
 UCLASS(Abstract, Blueprintable)
@@ -21,7 +22,7 @@ public:
 	float GetCooldownRemaining() const;
 
 	UFUNCTION(BlueprintPure, Category="Combat|Ability")
-	const TArray<FName>& GetTags() const;
+	const TArray<FGameplayTag>& GetTags() const;
 
 protected:
 	virtual void Activate();
@@ -31,7 +32,7 @@ protected:
 	TObjectPtr<AActor> OwnerActor = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category="Combat|Ability", meta=(ClampMin="0.0"))
-	TArray<FName> Tags;
+	TArray<FGameplayTag> Tags;
 	
 	UPROPERTY(EditDefaultsOnly, Category="Combat|Ability", meta=(ClampMin="0.0"))
 	float Cooldown = 1.0f;

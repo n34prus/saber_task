@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "EBEventBusSubsystem.h"
+#include "PTGameplayTags.h"
 #include "GameFramework/SaveGame.h"
 #include "SSStatisticSubsystem.generated.h"
 
@@ -12,7 +13,7 @@ class STATISTICSYSTEMMODULE_API UCpStatisticSaveGame : public USaveGame
 
 public:
 	UPROPERTY()
-	TMap<FName, float> TotalStats;
+	TMap<FGameplayTag, float> TotalStats;
 };
 
 UCLASS()
@@ -25,48 +26,25 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
 	virtual void Deinitialize() override;
-	
-	UFUNCTION(BlueprintPure)
-	float GetSessionStat(FName StatName) const;
-	UFUNCTION(BlueprintPure)
-	float GetTotalStat(FName StatName) const;
+
 	UFUNCTION(BlueprintCallable)
-	void ClearTotalStat();
+	void AddValueToSessionStat(FGameplayTag StatTag, float Value);
+	UFUNCTION(BlueprintCallable)
+	void AddValueToTotalStat(FGameplayTag StatTag, float Value);
+	UFUNCTION(BlueprintPure)
+	float GetSessionStat(FGameplayTag StatTag) const;
+	UFUNCTION(BlueprintPure)
+	float GetTotalStat(FGameplayTag StatTag) const;
+	UFUNCTION(BlueprintCallable)
+	void ClearStats();
 
 private:
-
-	// todo: use gameplay tags instead
-	static constexpr const TCHAR* StatNames[4] = {
-		TEXT("DamageProduced"),
-		TEXT("DamageRecieved"),
-		TEXT("CritCount"),
-		TEXT("ExperiencePoints")
-	};
-
-	static constexpr bool IsValidStatName(const TCHAR* Name)
-	{
-		auto StrEq = [](const TCHAR* A, const TCHAR* B)
-		{
-			while (*A && *B)
-			{
-				if (*A != *B) return false;
-				++A;
-				++B;
-			}
-			return *A == *B;
-		};
-		for (auto N : StatNames)
-		{
-			if (StrEq(N, Name)) return true;
-		}
-		return false;
-	}
+	
+	UPROPERTY()
+	TMap<FGameplayTag, float> SessionStats;
 
 	UPROPERTY()
-	TMap<FName, float> SessionStats;
-
-	UPROPERTY()
-	TMap<FName, float> TotalStats;
+	TMap<FGameplayTag, float> TotalStats;
 
 	UPROPERTY()
 	TObjectPtr<UCpStatisticSaveGame> SaveObject;

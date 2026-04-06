@@ -74,7 +74,7 @@ bool UASAbilityComponent::ActivateAbilityByClass(TSubclassOf<UASAbility> Ability
 	return bCanActivate;
 }
 
-bool UASAbilityComponent::ActivateAbilityByTag(FName Tag)
+bool UASAbilityComponent::ActivateAbilityByTag(FGameplayTag Tag)
 {
 	for (UASAbility* Ability : Abilities)
 	{

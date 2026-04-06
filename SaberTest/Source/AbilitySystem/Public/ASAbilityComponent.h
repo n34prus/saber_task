@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "PTGameplayTags.h"
 #include "ASAbilityComponent.generated.h"
 
 class UASAbility;
@@ -17,10 +18,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Combat|Abilities")
 	bool ActivateAbilityByClass(TSubclassOf<UASAbility> AbilityClass);
-
-	// todo: FName -> GameplayTag
+	
 	UFUNCTION(BlueprintCallable, Category="Combat|Abilities")
-	bool ActivateAbilityByTag(FName Tag);
+	bool ActivateAbilityByTag(FGameplayTag Tag);
 
 	UFUNCTION(BlueprintPure, Category="Combat|Abilities")
 	UASAbility* GetAbilityByClass(TSubclassOf<UASAbility> AbilityClass) const;

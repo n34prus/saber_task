@@ -1,18 +1,11 @@
 ﻿#include "SSStatisticSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 
-#include "PTGameplayTags.h"
 
 void USSStatisticSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
-
-	for (const auto * Stat : StatNames)
-	{
-		TotalStats.Add(Stat, 0.f);
-		SessionStats.Add(Stat, 0.f);
-	}
-	
+		
 	Load();	// override total stats
 
 	// todo: better to use UGameplayStatics delegates
@@ -31,23 +24,34 @@ void USSStatisticSubsystem::Deinitialize()
 	Super::Deinitialize();
 }
 
-float USSStatisticSubsystem::GetSessionStat(FName StatName) const
+void USSStatisticSubsystem::AddValueToSessionStat(FGameplayTag StatTag, float Value)
 {
-	return SessionStats[StatName];
+	if (!SessionStats.Contains(StatTag)) SessionStats.Add(StatTag, Value);
+	else SessionStats[StatTag] += Value;
 }
 
-float USSStatisticSubsystem::GetTotalStat(FName StatName) const
+void USSStatisticSubsystem::AddValueToTotalStat(FGameplayTag StatTag, float Value)
 {
-	return TotalStats[StatName];
+	if (!TotalStats.Contains(StatTag)) TotalStats.Add(StatTag, Value);
+	else TotalStats[StatTag] += Value;
 }
 
-void USSStatisticSubsystem::ClearTotalStat()
+float USSStatisticSubsystem::GetSessionStat(FGameplayTag StatTag) const
 {
-	for (const auto * Stat : StatNames)
-	{
-		TotalStats.Add(Stat, 0.f);
-		SessionStats.Add(Stat, 0.f);
-	}
+	if (!SessionStats.Contains(StatTag)) return 0.f;
+	return SessionStats[StatTag];
+}
+
+float USSStatisticSubsystem::GetTotalStat(FGameplayTag StatTag) const
+{
+	if (!TotalStats.Contains(StatTag)) return 0.f;
+	return TotalStats[StatTag];
+}
+
+void USSStatisticSubsystem::ClearStats()
+{
+	TotalStats.Empty();
+	SessionStats.Empty();
 }
 
 void USSStatisticSubsystem::BindToNewPlayer(AActor* OldPlayerActor, AActor* NewPlayerActor)
@@ -92,16 +96,12 @@ void USSStatisticSubsystem::HandleDamage(const FEBEventData& Event)
 	if (Event.Source == Event.Target) return;
 	if (Event.Source == PlayerActor)
 	{
-		constexpr const TCHAR* StatName = TEXT("DamageProduced");
-		static_assert(IsValidStatName(StatName), "Invalid name!");
-		SessionStats[StatName] += Event.FloatValue;
+		AddValueToSessionStat(PluginTags::TAG_Stat_DamageProduced, Event.FloatValue);
 		return;
 	}
 	if (Event.Target == PlayerActor)
 	{
-		constexpr const TCHAR* StatName = TEXT("DamageRecieved");
-		static_assert(IsValidStatName(StatName), "Invalid name!");
-		SessionStats[StatName] += Event.FloatValue;
+		AddValueToSessionStat(PluginTags::TAG_Stat_DamageRecieved, Event.FloatValue);
 		return;
 	}
 }
@@ -110,9 +110,7 @@ void USSStatisticSubsystem::HandleDeath(const FEBEventData& Event)
 {
 	if (Event.Source != PlayerActor)
 	{
-		constexpr const TCHAR* StatName = TEXT("ExperiencePoints");
-		static_assert(IsValidStatName(StatName), "Invalid name!");
-		SessionStats[StatName] += 100;
+		AddValueToSessionStat(PluginTags::TAG_Stat_ExperiencePoints, 100);
 	}
 }
 
@@ -120,20 +118,23 @@ void USSStatisticSubsystem::HandleCombatStateChanged(const FEBEventData& Event)
 {
 	if (Event.Key == PluginTags::TAG_Combat_State_None)
 	{
-		for (auto Name : StatNames) SessionStats[Name] = 0.f;
+		SessionStats.Empty();
 	}
 	else if (Event.Key == PluginTags::TAG_Combat_State_Finished)
 	{
-		for (auto Name : StatNames)	TotalStats[Name] += SessionStats[Name];
+		for (const auto & Pair : SessionStats)
+		{
+			AddValueToTotalStat(Pair.Key, Pair.Value);
+			//TotalStats[Pair.Key] += Pair.Value;
+		}
 		Save();
 	}
 }
 
 void USSStatisticSubsystem::HandleCrit(const FEBEventData& Event)
 {
-	constexpr const TCHAR* StatName = TEXT("CritCount");
-	static_assert(IsValidStatName(StatName), "Invalid name!");
-	SessionStats[StatName] ++;
+	if (Event.Source != PlayerActor) return;
+	AddValueToSessionStat(PluginTags::TAG_Stat_CritCount, 1);
 }
 
 void USSStatisticSubsystem::Load()
@@ -146,11 +147,8 @@ void USSStatisticSubsystem::Load()
 
 		if (SaveObject)
 		{
-			for (auto Stat : StatNames)
-			{
-				if (SaveObject->TotalStats.Contains(Stat))
-					TotalStats[Stat] = SaveObject->TotalStats[Stat];
-			}
+			ClearStats();
+			TotalStats = SaveObject->TotalStats;
 		}
 	}
 	else
