@@ -32,7 +32,7 @@ void AGICombatArena::Reset()
 	CombatSubsystem->ResetCombat();
 	for (auto * Pawn : SpawnedPawns)
 	{
-		Pawn->Destroy();
+		if (Pawn) Pawn->Destroy();
 	}
 	GetWorld()->GetTimerManager().SetTimerForNextTick(this, &AGICombatArena::SpawnActors);
 }

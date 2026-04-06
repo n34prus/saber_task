@@ -2,12 +2,11 @@
 
 using UnrealBuildTool;
 
-public class AbilitySystemModule : ModuleRules
+public class EventBusSystemModule : ModuleRules
 {
-	public AbilitySystemModule(ReadOnlyTargetRules Target) : base(Target)
+	public EventBusSystemModule(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
-		bUseUnity = false;
 		
 		PublicIncludePaths.AddRange(
 			new string[] {
@@ -29,9 +28,7 @@ public class AbilitySystemModule : ModuleRules
 				"Core",
 				"CoreUObject",
 				"Engine",
-				"GameplayTags",
-				"PluginTagsModule",
-				"EventBusSystemModule",
+				"GameplayTags"
 			}
 			);
 			
@@ -39,7 +36,7 @@ public class AbilitySystemModule : ModuleRules
 		PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
-
+				
 			}
 			);
 		

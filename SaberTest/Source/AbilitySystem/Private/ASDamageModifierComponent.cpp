@@ -27,24 +27,20 @@ void UASDamageModifierComponent::RemoveModifierByClass(TSubclassOf<UASDamageModi
 	}
 }
 
-void UASDamageModifierComponent::ModifyOutgoingDamage(FASCombatDamagePacket& Packet, AActor* Target) const
+void UASDamageModifierComponent::ModifyOutgoingDamage(FASCombatDamagePacket& Packet, AActor* Source, AActor* Target) const
 {
 	for (auto Modifier : Modifiers)
 	{
 		if (!Modifier) continue;
-		FName Msg = NAME_None;
-		Modifier->ModifyOutgoingDamage(Packet, Target, Msg);
-		if (Msg != NAME_None) OnMessageCalled.Broadcast(Msg, this);
+		Modifier->ModifyOutgoingDamage(Packet, Source, Target);
 	}
 }
 
-void UASDamageModifierComponent::ModifyIncomingDamage(FASCombatDamagePacket& Packet, AActor* Source) const
+void UASDamageModifierComponent::ModifyIncomingDamage(FASCombatDamagePacket& Packet, AActor* Source, AActor* Target) const
 {
 	for (auto Modifier : Modifiers)
 	{
 		if (!Modifier) continue;
-		FName Msg = NAME_None;
-		Modifier->ModifyIncomingDamage(Packet, Source, Msg);
-		if (Msg != NAME_None) OnMessageCalled.Broadcast(Msg, this);
+		Modifier->ModifyIncomingDamage(Packet, Source, Target);
 	}
 }

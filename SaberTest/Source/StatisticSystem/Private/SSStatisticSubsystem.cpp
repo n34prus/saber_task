@@ -1,7 +1,7 @@
 ﻿#include "SSStatisticSubsystem.h"
 #include "Kismet/GameplayStatics.h"
-#include "ASDamageModifierComponent.h"
-#include "CSCombatSubsystem.h"
+
+#include "PTGameplayTags.h"
 
 void USSStatisticSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -53,45 +53,27 @@ void USSStatisticSubsystem::ClearTotalStat()
 void USSStatisticSubsystem::BindToNewPlayer(AActor* OldPlayerActor, AActor* NewPlayerActor)
 {
 	UnbindFromCombatEvents();
-	UnbindFromPlayerModifiers(OldPlayerActor);
 	BindToCombatEvents();
-	BindToPlayerModifiers(NewPlayerActor);
+
 }
 
 void USSStatisticSubsystem::BindToCombatEvents()
 {
-	if (auto * CombatSubsystem = UCSCombatSubsystem::Get(GetWorld()))
+	if (UEBEventBusSubsystem* Bus = GetGameInstance()->GetSubsystem<UEBEventBusSubsystem>())
 	{
-		CombatSubsystem->OnCombatMemberDealDamage.AddDynamic(this, &USSStatisticSubsystem::HandleDamage);
-		CombatSubsystem->OnCombatStateChanged.AddDynamic(this, &USSStatisticSubsystem::HandleCombatStateChanged);
-		CombatSubsystem->OnCombatMemberDeath.AddDynamic(this, &USSStatisticSubsystem::HandleDeath);
+		Bus->SubscribeObject(PluginTags::TAG_Combat_Damage, this, &USSStatisticSubsystem::HandleDamage);
+		Bus->SubscribeObject(PluginTags::TAG_Health_Death, this, &USSStatisticSubsystem::HandleDeath);
+		Bus->SubscribeObject(PluginTags::TAG_Combat_StateChanged, this, &USSStatisticSubsystem::HandleCombatStateChanged);
+		Bus->SubscribeObject(PluginTags::TAG_Combat_Crit, this, &USSStatisticSubsystem::HandleCrit);
 	}
-}
-
-void USSStatisticSubsystem::BindToPlayerModifiers(AActor* NewPlayerActor)
-{
-	if (!NewPlayerActor) return;
-	UASDamageModifierComponent* Component = NewPlayerActor->FindComponentByClass<UASDamageModifierComponent>();
-	if (!Component) return;
-	Component->OnMessageCalled.AddDynamic(this, &USSStatisticSubsystem::HandleModifier);
 }
 
 void USSStatisticSubsystem::UnbindFromCombatEvents()
 {
-	if (auto * CombatSubsystem = UCSCombatSubsystem::Get(GetWorld()))
+	if (UEBEventBusSubsystem* Bus = GetGameInstance()->GetSubsystem<UEBEventBusSubsystem>())
 	{
-		CombatSubsystem->OnCombatMemberDealDamage.RemoveAll(this);
-		CombatSubsystem->OnCombatStateChanged.RemoveAll(this);
-		CombatSubsystem->OnCombatMemberDeath.RemoveAll(this);
+		Bus->UnsubscribeAll(this);
 	}
-}
-
-void USSStatisticSubsystem::UnbindFromPlayerModifiers(AActor* OldPlayerActor)
-{
-	if (!OldPlayerActor) return;
-	UASDamageModifierComponent* Component = OldPlayerActor->FindComponentByClass<UASDamageModifierComponent>();
-	if (!Component) return;
-	Component->OnMessageCalled.RemoveAll(this);
 }
 
 void USSStatisticSubsystem::Scan()
@@ -104,68 +86,54 @@ void USSStatisticSubsystem::Scan()
 	}
 }
 
-void USSStatisticSubsystem::HandleDamage(AActor* DamageCauser, AActor* Target, float Value)
+void USSStatisticSubsystem::HandleDamage(const FEBEventData& Event)
 {
-	if (Value <= 0.f) return;
-	if (DamageCauser == Target) return;
-	if (DamageCauser == PlayerActor)
+	if (Event.FloatValue <= 0.f) return;
+	if (Event.Source == Event.Target) return;
+	if (Event.Source == PlayerActor)
 	{
 		constexpr const TCHAR* StatName = TEXT("DamageProduced");
 		static_assert(IsValidStatName(StatName), "Invalid name!");
-		SessionStats[StatName] += Value;
-		//SessionDamageProduced += Value;
+		SessionStats[StatName] += Event.FloatValue;
 		return;
 	}
-	if (Target == PlayerActor)
+	if (Event.Target == PlayerActor)
 	{
 		constexpr const TCHAR* StatName = TEXT("DamageRecieved");
 		static_assert(IsValidStatName(StatName), "Invalid name!");
-		SessionStats[StatName] += Value;
-		//SessionDamageRecieved += Value;
+		SessionStats[StatName] += Event.FloatValue;
 		return;
 	}
 }
 
-void USSStatisticSubsystem::HandleDeath(AActor* DeadActor)
+void USSStatisticSubsystem::HandleDeath(const FEBEventData& Event)
 {
-	if (DeadActor != PlayerActor)
+	if (Event.Source != PlayerActor)
 	{
 		constexpr const TCHAR* StatName = TEXT("ExperiencePoints");
 		static_assert(IsValidStatName(StatName), "Invalid name!");
 		SessionStats[StatName] += 100;
-		//SessionExperiencePoints += 100;	// can be overrided by enemy archetype
 	}
 }
 
-void USSStatisticSubsystem::HandleCombatStateChanged(ECpCombatState NewCombatState)
+void USSStatisticSubsystem::HandleCombatStateChanged(const FEBEventData& Event)
 {
-	switch (NewCombatState)
+	if (Event.Key == PluginTags::TAG_Combat_State_None)
 	{
-	case ECpCombatState::CpCombat_None:
-			for (auto Name : StatNames)
-				SessionStats[Name] = 0.f;
-			break;
-
-		case ECpCombatState::CpCombat_Finished:
-			for (auto Name : StatNames)
-				TotalStats[Name] += SessionStats[Name];
-			Save();
-			break;
-
-		default:
-			break;
+		for (auto Name : StatNames) SessionStats[Name] = 0.f;
+	}
+	else if (Event.Key == PluginTags::TAG_Combat_State_Finished)
+	{
+		for (auto Name : StatNames)	TotalStats[Name] += SessionStats[Name];
+		Save();
 	}
 }
 
-void USSStatisticSubsystem::HandleModifier(const FName Message, const UObject* Source)
+void USSStatisticSubsystem::HandleCrit(const FEBEventData& Event)
 {
-	if (Message == "Crit")
-	{
-		constexpr const TCHAR* StatName = TEXT("CritCount");
-		static_assert(IsValidStatName(StatName), "Invalid name!");
-		SessionStats[StatName] ++;
-		//SessionCritCount++;
-	}
+	constexpr const TCHAR* StatName = TEXT("CritCount");
+	static_assert(IsValidStatName(StatName), "Invalid name!");
+	SessionStats[StatName] ++;
 }
 
 void USSStatisticSubsystem::Load()

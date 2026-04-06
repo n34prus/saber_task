@@ -29,6 +29,9 @@ public class GameplayImplementationModule : ModuleRules
 				"CoreUObject",
 				"Engine",
 				"AIModule",
+				"EventBusSystemModule",
+				"GameplayTags",
+				"PluginTagsModule",
 				// ... add other public dependencies that you statically link with here ...
 				"AbilitySystemModule",
 				"HealthSystemModule",

@@ -13,5 +13,5 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Combat")
 	float Armor = 0.f;
 	
-	virtual void ModifyIncomingDamage(FASCombatDamagePacket& Packet, AActor* Source, FName& Msg) const override;
+	virtual void ModifyIncomingDamage(FASCombatDamagePacket& Packet, AActor* Source, AActor* Target) const override;
 };

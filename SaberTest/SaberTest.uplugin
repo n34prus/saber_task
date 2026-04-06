@@ -16,6 +16,16 @@
 	"Installed": false,
 	"Modules": [
         {
+          "Name": "PluginTagsModule",
+          "Type": "Runtime",
+          "LoadingPhase": "Default"
+        },
+        {
+          "Name": "EventBusSystemModule",
+          "Type": "Runtime",
+          "LoadingPhase": "Default"
+        },
+        {
           "Name": "AbilitySystemModule",
           "Type": "Runtime",
           "LoadingPhase": "Default"

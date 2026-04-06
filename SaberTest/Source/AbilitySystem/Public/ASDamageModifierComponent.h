@@ -4,8 +4,6 @@
 #include "ASDamageModifier.h"
 #include "ASDamageModifierComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FDamageModifierMessageSignature, const FName, Message, const UObject*, Source);
-
 UCLASS(Blueprintable, ClassGroup=(Combat))
 class ABILITYSYSTEMMODULE_API UASDamageModifierComponent : public UActorComponent
 {
@@ -19,12 +17,9 @@ public:
 
 	void RemoveModifierByClass(TSubclassOf<UASDamageModifier> ModifierClass);;
 	
-	void ModifyOutgoingDamage(FASCombatDamagePacket& Packet, AActor* Target) const;
+	void ModifyOutgoingDamage(FASCombatDamagePacket& Packet, /**/AActor* Source/**/, AActor* Target) const;
 
-	void ModifyIncomingDamage(FASCombatDamagePacket& Packet, AActor* Source) const;
-
-	UPROPERTY(BlueprintAssignable, Category="Combat|Modifiers")
-	FDamageModifierMessageSignature OnMessageCalled;
+	void ModifyIncomingDamage(FASCombatDamagePacket& Packet, AActor* Source, /**/AActor* Target/**/) const;
 
 protected:
 

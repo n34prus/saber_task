@@ -28,6 +28,8 @@ public class HealthSystemModule : ModuleRules
 				"Core",
 				"CoreUObject",
 				"Engine",
+				"EventBusSystemModule",
+				"PluginTagsModule"
 			}
 			);
 			

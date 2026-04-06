@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "ASCombatDamagePacket.h"
 #include "HSHealthComponent.h"
+#include "PTGameplayTags.h"
 #include "CSCombatSubsystem.generated.h"
 
 class UHSHealthComponent;
@@ -49,14 +50,13 @@ public:
 	FCombatDeathSignature OnCombatMemberDeath;
 	FOnCombatStateChangedSignature OnCombatStateChanged;
 	FOnDifficultyChangedSignature OnDifficultyChanged;
-
 	
 	UFUNCTION(BlueprintCallable, Category="Combat|Damage")
 	float ApplyCombatDamage(AActor* DamageCauser, AActor* Target, const FASCombatDamagePacket& DamagePacket);
 	
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
-
 	virtual void Deinitialize() override;
+	static const FGameplayTag GetTagFromState(ECpCombatState State);
 
 	UFUNCTION(BlueprintCallable, Category="Combat")
 	FORCEINLINE ECpCombatState GetCombatState() const { return CombatState; }
@@ -87,11 +87,7 @@ public:
 	
 protected:
 	
-	inline void SetCombatState(ECpCombatState NewState)
-	{
-		CombatState = NewState;
-		OnCombatStateChanged.Broadcast(CombatState);
-	}
+	void SetCombatState(ECpCombatState NewState);
 
 	UFUNCTION()
 	void OnCombatStateChanged_Implementation(ECpCombatState NewState);

@@ -28,8 +28,9 @@ public class CombatSystemModule : ModuleRules
 				"Core",
 				"CoreUObject",
 				"Engine",
-				//"InputCore",
-				//"AIModule",
+				"GameplayTags",
+				"PluginTagsModule",
+				"EventBusSystemModule",
 				// ... add other public dependencies that you statically link with here ...
 				"HealthSystemModule",
 				"AbilitySystemModule"
@@ -40,11 +41,6 @@ public class CombatSystemModule : ModuleRules
 		PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
-				//"CoreUObject",
-				//"Engine",
-				//"Slate",
-				//"SlateCore",
-				//"UMG" 
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

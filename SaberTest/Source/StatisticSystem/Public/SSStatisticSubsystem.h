@@ -1,11 +1,7 @@
 ﻿#pragma once
 
-//#include "CoreMinimal.h"
-//#include "Subsystems/GameInstanceSubsystem.h"
-//
-//#include "GameFramework/Actor.h"
-//#include "GameFramework/PlayerController.h"
-//#include "Engine/World.h"
+#include "CoreMinimal.h"
+#include "EBEventBusSubsystem.h"
 #include "GameFramework/SaveGame.h"
 #include "SSStatisticSubsystem.generated.h"
 
@@ -39,6 +35,7 @@ public:
 
 private:
 
+	// todo: use gameplay tags instead
 	static constexpr const TCHAR* StatNames[4] = {
 		TEXT("DamageProduced"),
 		TEXT("DamageRecieved"),
@@ -82,25 +79,15 @@ private:
 	void BindToNewPlayer(AActor* OldPlayerActor, AActor* NewPlayerActor);
 	
 	void BindToCombatEvents();
-	void BindToPlayerModifiers(AActor* NewPlayerActor);
 	void UnbindFromCombatEvents();
-	void UnbindFromPlayerModifiers(AActor* OldPlayerActor);
-	
 
 	UFUNCTION()
 	void Scan();
 	
-	UFUNCTION()
-	void HandleDamage(AActor* DamageCauser, AActor* Target, float Value);
-
-	UFUNCTION()
-	void HandleDeath(AActor* DeadActor);
-
-	UFUNCTION()
-	void HandleCombatStateChanged(ECpCombatState NewCombatState);
-
-	UFUNCTION()
-	void HandleModifier(const FName Message, const UObject* Source);
+	void HandleDamage(const FEBEventData& Event);
+	void HandleDeath(const FEBEventData& Event);
+	void HandleCombatStateChanged(const FEBEventData& Event);
+	void HandleCrit(const FEBEventData& Event);
 
 	UFUNCTION(BlueprintCallable)
 	void Load();

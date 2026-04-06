@@ -16,5 +16,5 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Combat")
 	float CriticalMultiplier = 2.f;
 
-	virtual void ModifyOutgoingDamage(FASCombatDamagePacket& Packet, AActor* Target, FName& Msg) const override;
+	virtual void ModifyOutgoingDamage(FASCombatDamagePacket& Packet, AActor* Source, AActor* Target) const override;
 };

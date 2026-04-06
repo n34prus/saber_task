@@ -10,6 +10,6 @@ class ABILITYSYSTEMMODULE_API UASDamageModifier : public UObject
 	GENERATED_BODY()
 
 public:
-	virtual void ModifyOutgoingDamage(FASCombatDamagePacket& Packet, AActor* Target, FName& Msg) const {}
-	virtual void ModifyIncomingDamage(FASCombatDamagePacket& Packet, AActor* Source, FName& Msg) const {}
+	virtual void ModifyOutgoingDamage(FASCombatDamagePacket& Packet, AActor* Source, AActor* Target) const {}
+	virtual void ModifyIncomingDamage(FASCombatDamagePacket& Packet, AActor* Source, AActor* Target) const {}
 };

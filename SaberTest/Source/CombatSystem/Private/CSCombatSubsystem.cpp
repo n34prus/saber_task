@@ -2,6 +2,8 @@
 
 #include "ASDamageModifierComponent.h"
 #include "Kismet/GameplayStatics.h"
+
+#include "EBEventBusSubsystem.h"
 //#include "GameFramework/DamageType.h"
 //#include "Components/ActorComponent.h"
 
@@ -13,11 +15,11 @@ static void ApplyModifiersFromActor(AActor* Actor, bool bOutgoing, FASCombatDama
 	{
 		if (bOutgoing)
 		{
-			Modifier->ModifyOutgoingDamage(Packet, OtherActor);
+			Modifier->ModifyOutgoingDamage(Packet, Actor, OtherActor);
 		}
 		else
 		{
-			Modifier->ModifyIncomingDamage(Packet, OtherActor);
+			Modifier->ModifyIncomingDamage(Packet, OtherActor, Actor);
 		}
 	}
 }
@@ -49,7 +51,18 @@ float UCSCombatSubsystem::ApplyCombatDamage(AActor* DamageCauser, AActor* Target
 		UDamageType::StaticClass()
 	);
 
-	OnCombatMemberDealDamage.Broadcast(DamageCauser, Target, Packet.FinalDamage);
+	//OnCombatMemberDealDamage.Broadcast(DamageCauser, Target, Packet.FinalDamage);
+
+	if (UEBEventBusSubsystem* Bus = GetGameInstance()->GetSubsystem<UEBEventBusSubsystem>())
+	{
+		FEBEventData Event;
+		Event.Topic = PluginTags::TAG_Combat_Damage;
+		Event.FloatValue = Packet.FinalDamage;
+		Event.Source = DamageCauser;
+		Event.Target = Target;
+		
+		Bus->Publish(Event);
+	}
 	
 	return Packet.FinalDamage;
 }
@@ -64,6 +77,25 @@ void UCSCombatSubsystem::Deinitialize()
 {
 	OnCombatStateChanged.RemoveAll(this);
 	Super::Deinitialize();
+}
+
+const FGameplayTag UCSCombatSubsystem::GetTagFromState(ECpCombatState State)
+{
+	switch (State)
+	{
+		case ECpCombatState::CpCombat_None:
+			return PluginTags::TAG_Combat_State_None;
+		case ECpCombatState::CpCombat_Init:
+			return PluginTags::TAG_Combat_State_Init;
+		case ECpCombatState::CpCombat_Active:
+			return PluginTags::TAG_Combat_State_Active;
+		case ECpCombatState::CpCombat_Finished:
+			return PluginTags::TAG_Combat_State_Finished;
+		case ECpCombatState::CpCombat_Resulting:
+			return PluginTags::TAG_Combat_State_Resulting;
+		default:
+			return PluginTags::TAG_Combat_State_None;
+	}
 }
 
 bool UCSCombatSubsystem::StartCombat()
@@ -140,6 +172,19 @@ float UCSCombatSubsystem::GetDifficulty()
 	return Difficulty;
 }
 
+void UCSCombatSubsystem::SetCombatState(ECpCombatState NewState)
+{
+	CombatState = NewState;
+	OnCombatStateChanged.Broadcast(CombatState);	// todo: remove from gameplay impl
+	if (UEBEventBusSubsystem* Bus = GetGameInstance()->GetSubsystem<UEBEventBusSubsystem>())
+	{
+		FEBEventData Event;
+		Event.Topic = PluginTags::TAG_Combat_StateChanged;
+		Event.Key = GetTagFromState(NewState);
+		Bus->Publish(Event);
+	}
+}
+
 void UCSCombatSubsystem::OnCombatStateChanged_Implementation(ECpCombatState NewState)
 {
 	// we have no impl transmissions so lets make them rapid
@@ -182,7 +227,14 @@ void UCSCombatSubsystem::OnDeath(AActor* DeadActor)
 {
 	if (!DeadActor) return;
 	UnregisterMember(DeadActor);
-	OnCombatMemberDeath.Broadcast(DeadActor);
+	//OnCombatMemberDeath.Broadcast(DeadActor);
+	if (UEBEventBusSubsystem* Bus = GetGameInstance()->GetSubsystem<UEBEventBusSubsystem>())
+	{
+		FEBEventData Event;
+		Event.Topic = PluginTags::TAG_Health_Death;
+		Event.Source = DeadActor;
+		Bus->Publish(Event);
+	}
 	CheckFinishCondition();
 }
 
