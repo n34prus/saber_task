@@ -4,6 +4,7 @@
 #include "GameFramework/Character.h"
 #include "ASDamageModifierComponent.h"
 #include "ASAbilityComponent.h"
+#include "HSHealthComponent.h"
 #include "GICombatCharacter.generated.h"
 
 class UCameraComponent;

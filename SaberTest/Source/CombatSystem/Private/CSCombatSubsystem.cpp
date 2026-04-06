@@ -3,9 +3,6 @@
 #include "ASDamageModifierComponent.h"
 #include "Kismet/GameplayStatics.h"
 
-#include "EBEventBusSubsystem.h"
-//#include "GameFramework/DamageType.h"
-//#include "Components/ActorComponent.h"
 
 static void ApplyModifiersFromActor(AActor* Actor, bool bOutgoing, FASCombatDamagePacket& Packet, AActor* OtherActor)
 {
@@ -51,8 +48,6 @@ float UCSCombatSubsystem::ApplyCombatDamage(AActor* DamageCauser, AActor* Target
 		UDamageType::StaticClass()
 	);
 
-	//OnCombatMemberDealDamage.Broadcast(DamageCauser, Target, Packet.FinalDamage);
-
 	if (UEBEventBusSubsystem* Bus = GetGameInstance()->GetSubsystem<UEBEventBusSubsystem>())
 	{
 		FEBEventData Event;
@@ -70,12 +65,12 @@ float UCSCombatSubsystem::ApplyCombatDamage(AActor* DamageCauser, AActor* Target
 void UCSCombatSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
-	OnCombatStateChanged.AddDynamic(this, &UCSCombatSubsystem::OnCombatStateChanged_Implementation);
+	//OnCombatStateChanged.AddDynamic(this, &UCSCombatSubsystem::OnCombatStateChanged_Implementation);
 }
 
 void UCSCombatSubsystem::Deinitialize()
 {
-	OnCombatStateChanged.RemoveAll(this);
+	//OnCombatStateChanged.RemoveAll(this);
 	Super::Deinitialize();
 }
 
@@ -102,6 +97,7 @@ bool UCSCombatSubsystem::StartCombat()
 {
 	if (CombatState == ECpCombatState::CpCombat_None)
 	{
+		BindToCombatEvents();
 		SetCombatState(ECpCombatState::CpCombat_Init);
 		return true;
 	}
@@ -113,6 +109,7 @@ bool UCSCombatSubsystem::StopCombat()
 	if (CombatState == ECpCombatState::CpCombat_Active)
 	{
 		SetCombatState(ECpCombatState::CpCombat_Finished);
+		UnbindFromCombatEvents();
 		return true;
 	}
 	return false;
@@ -120,10 +117,15 @@ bool UCSCombatSubsystem::StopCombat()
 
 void UCSCombatSubsystem::ResetCombat()
 {
-	auto CachedMember = CombatMembers;
-	for (auto& Pair : CachedMember)
+	if (!IsValid(this))
 	{
-		if (Pair.Key) UnregisterMember(Pair.Key);
+		UE_LOG(LogTemp, Warning, TEXT("ResetCombat called on invalid subsystem!"));
+		return;
+	}
+	auto CachedMember = CombatMembers;
+	for (auto * Actor : CachedMember)
+	{
+		if (Actor) UnregisterMember(Actor);
 	}
 	CombatMembers.Empty();
 	SetCombatState(ECpCombatState::CpCombat_None);
@@ -133,23 +135,16 @@ bool UCSCombatSubsystem::RegisterMember(AActor* Member)
 {
 	if (!IsValid(Member)) return false;
 	if (IsMemberRegistered(Member)) return true;
-	if (auto * HealthComponent = Member->FindComponentByClass<UHSHealthComponent>())
-	{
-		CombatMembers.Add(Member, HealthComponent);
-		HealthComponent->OnDeath.AddDynamic(this, &UCSCombatSubsystem::OnDeath);
-		UE_LOG(LogTemp, Warning, TEXT("Registered: %s | Total: %d"), *GetNameSafe(Member), CombatMembers.Num());
-		return true;
-	}
-	return false;
+
+	CombatMembers.Add(Member);
+	UE_LOG(LogTemp, Warning, TEXT("Registered: %s | Total: %d"), *GetNameSafe(Member), CombatMembers.Num());
+	return true;
 }
 
 bool UCSCombatSubsystem::UnregisterMember(AActor* Member)
 {
 	if (!Member) return false;
-	if (auto * HealthComponent = CombatMembers[Member])
-	{
-		HealthComponent->OnDeath.RemoveAll(this);
-	}
+	
 	int32 Matches = CombatMembers.Remove(Member);
 	if (Matches <= 0) return false;
 	UE_LOG(LogTemp, Warning, TEXT("Unregistered: %s | Total: %d"), *GetNameSafe(Member), CombatMembers.Num());
@@ -175,7 +170,7 @@ float UCSCombatSubsystem::GetDifficulty()
 void UCSCombatSubsystem::SetCombatState(ECpCombatState NewState)
 {
 	CombatState = NewState;
-	OnCombatStateChanged.Broadcast(CombatState);	// todo: remove from gameplay impl
+	OnCombatStateChanged_Implementation(NewState);
 	if (UEBEventBusSubsystem* Bus = GetGameInstance()->GetSubsystem<UEBEventBusSubsystem>())
 	{
 		FEBEventData Event;
@@ -223,21 +218,6 @@ void UCSCombatSubsystem::OnCombatStateChanged_Implementation(ECpCombatState NewS
 	}
 }
 
-void UCSCombatSubsystem::OnDeath(AActor* DeadActor)
-{
-	if (!DeadActor) return;
-	UnregisterMember(DeadActor);
-	//OnCombatMemberDeath.Broadcast(DeadActor);
-	if (UEBEventBusSubsystem* Bus = GetGameInstance()->GetSubsystem<UEBEventBusSubsystem>())
-	{
-		FEBEventData Event;
-		Event.Topic = PluginTags::TAG_Health_Death;
-		Event.Source = DeadActor;
-		Bus->Publish(Event);
-	}
-	CheckFinishCondition();
-}
-
 void UCSCombatSubsystem::CheckFinishCondition()
 {
 	if (CombatState != ECpCombatState::CpCombat_Active) return;
@@ -258,5 +238,29 @@ void UCSCombatSubsystem::CheckFinishCondition()
 		StopCombat();
 		return;
 	}
-		
+}
+
+void UCSCombatSubsystem::BindToCombatEvents()
+{
+	if (UEBEventBusSubsystem* Bus = GetGameInstance()->GetSubsystem<UEBEventBusSubsystem>())
+	{
+		Bus->SubscribeObject(PluginTags::TAG_Health_Death, this, &UCSCombatSubsystem::HandleDeath);
+	}
+}
+
+void UCSCombatSubsystem::UnbindFromCombatEvents()
+{
+	if (UEBEventBusSubsystem* Bus = GetGameInstance()->GetSubsystem<UEBEventBusSubsystem>())
+	{
+		Bus->UnsubscribeAll(this);
+	}
+}
+
+void UCSCombatSubsystem::HandleDeath(const FEBEventData& Event)
+{
+	AActor* Actor = Cast<AActor>(Event.Source);
+	if (!Actor) return;
+	if (!CombatMembers.Contains(Actor)) return;
+	UnregisterMember(Actor);
+	CheckFinishCondition();
 }

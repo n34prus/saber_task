@@ -1,7 +1,9 @@
 ﻿#include "AbilitySystem/GIAbility_Attack.h"
 
+#include "ASCombatDamagePacket.h"
 #include "CSCombatSubsystem.h"
 #include "Engine/OverlapResult.h"
+#include "HSHealthComponent.h"
 
 void UGIAbility_Attack::Activate()
 {

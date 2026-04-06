@@ -50,7 +50,7 @@ protected:
     void UnbindFromCombatSubsystem();
 
     UFUNCTION()
-    void OnCombatStateChanged(ECpCombatState NewState);
+    void HandleCombatStateChanged(const FEBEventData& Event);
 
     UFUNCTION()
     void OnOverlap(UPrimitiveComponent* OverlappedComp,

@@ -18,6 +18,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Combat|Abilities")
 	bool ActivateAbilityByClass(TSubclassOf<UASAbility> AbilityClass);
 
+	// todo: FName -> GameplayTag
 	UFUNCTION(BlueprintCallable, Category="Combat|Abilities")
 	bool ActivateAbilityByTag(FName Tag);
 

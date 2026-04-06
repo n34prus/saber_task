@@ -76,7 +76,6 @@ void AGICombatAIController::Tick(float DeltaSeconds)
 						});
 						FTimerHandle Tmp;
 						GetWorldTimerManager().SetTimer(Tmp,	Delegate, 0.3f,	false);
-						//AbilityComponent->ActivateAbilityByTag("Attack");
 					}
 				}
 			}

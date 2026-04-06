@@ -1,4 +1,6 @@
 ﻿#include "HSHealthComponent.h"
+#include "EBEventBusSubsystem.h"
+#include "PTGameplayTags.h"
 
 UHSHealthComponent::UHSHealthComponent()
 {
@@ -88,6 +90,13 @@ void UHSHealthComponent::HandleDamage(
         GetWorld()->GetTimerManager().SetTimerForNextTick([this]()
         {
             OnDeath.Broadcast(GetOwner());
+            if (UEBEventBusSubsystem* Bus = GetWorld()->GetGameInstance()->GetSubsystem<UEBEventBusSubsystem>())
+            {
+                FEBEventData Event;
+                Event.Topic = PluginTags::TAG_Health_Death;
+                Event.Source = GetOwner();
+                Bus->Publish(Event);
+            }
         });
     }
 }

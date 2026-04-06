@@ -2,6 +2,8 @@
 
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
+#include "PTGameplayTags.h"
+#include "EBEventBusSubsystem.h"
 
 AGICombatArena::AGICombatArena()
 {
@@ -14,7 +16,6 @@ AGICombatArena::AGICombatArena()
 
 	Trigger->OnComponentBeginOverlap.AddDynamic(this, &AGICombatArena::OnOverlap);
 
-	//SpawnCount = 3;
 	SpawnSpacing = 100.f;
 }
 
@@ -23,12 +24,18 @@ void AGICombatArena::BeginPlay()
 	Super::BeginPlay();
 	
 	BindToCombatSubsystem();
+
+	if (CombatSubsystem) return;
+	CombatSubsystem = UCSCombatSubsystem::Get(GetWorld());
+	if (!CombatSubsystem) return;
+	
 	SpawnActors();
 }
 
 void AGICombatArena::Reset()
 {
 	Super::Reset();
+	
 	CombatSubsystem->ResetCombat();
 	for (auto * Pawn : SpawnedPawns)
 	{
@@ -80,22 +87,24 @@ void AGICombatArena::SpawnActors()
 
 void AGICombatArena::BindToCombatSubsystem()
 {
-	if (CombatSubsystem) return;
-	CombatSubsystem = UCSCombatSubsystem::Get(GetWorld());
-	if (!CombatSubsystem) return;
-	CombatSubsystem->OnCombatStateChanged.AddDynamic(this, &AGICombatArena::OnCombatStateChanged);
+	if (UEBEventBusSubsystem* Bus = GetGameInstance()->GetSubsystem<UEBEventBusSubsystem>())
+	{
+		Bus->SubscribeObject(PluginTags::TAG_Combat_StateChanged, this, &AGICombatArena::HandleCombatStateChanged);
+	}
 }
 
 void AGICombatArena::UnbindFromCombatSubsystem()
 {
-	CombatSubsystem->OnCombatStateChanged.RemoveAll(this);
+	if (UEBEventBusSubsystem* Bus = GetGameInstance()->GetSubsystem<UEBEventBusSubsystem>())
+	{
+		Bus->UnsubscribeAll(this);
+	}
 }
 
-void AGICombatArena::OnCombatStateChanged(ECpCombatState NewState)
+void AGICombatArena::HandleCombatStateChanged(const FEBEventData& Event)
 {
-	if (NewState == ECpCombatState::CpCombat_Resulting)
+	if (Event.Key == PluginTags::TAG_Combat_State_Resulting)
 	{
-		//UnbindFromCombatSubsystem();
 		if (WidgetClass.IsValid())
 		{
 			TSubclassOf<UUserWidget> WidgetClassRef = WidgetClass.LoadSynchronous();

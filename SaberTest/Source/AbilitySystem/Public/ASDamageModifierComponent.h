@@ -17,9 +17,9 @@ public:
 
 	void RemoveModifierByClass(TSubclassOf<UASDamageModifier> ModifierClass);;
 	
-	void ModifyOutgoingDamage(FASCombatDamagePacket& Packet, /**/AActor* Source/**/, AActor* Target) const;
+	void ModifyOutgoingDamage(FASCombatDamagePacket& Packet, AActor* Source, AActor* Target) const;
 
-	void ModifyIncomingDamage(FASCombatDamagePacket& Packet, AActor* Source, /**/AActor* Target/**/) const;
+	void ModifyIncomingDamage(FASCombatDamagePacket& Packet, AActor* Source, AActor* Target) const;
 
 protected:
 

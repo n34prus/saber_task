@@ -20,7 +20,8 @@ void UGIAbility_Dash::Activate()
 		Dir.Normalize();
 		Character->SetActorRotation(Dir.Rotation());
 	}
-	
+
+	// char is moved by rootmotion
 	//const FVector BackDirection = -Character->GetActorForwardVector();
 	//Character->LaunchCharacter(BackDirection * DashStrength, true, true);
 }

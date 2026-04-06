@@ -32,7 +32,7 @@ public class CombatSystemModule : ModuleRules
 				"PluginTagsModule",
 				"EventBusSystemModule",
 				// ... add other public dependencies that you statically link with here ...
-				"HealthSystemModule",
+				//"HealthSystemModule",
 				"AbilitySystemModule"
 			}
 			);
