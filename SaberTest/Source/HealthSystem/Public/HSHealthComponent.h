@@ -5,6 +5,18 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FCombatHealthChangedSignature, float, NewHealth, float, Delta);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCombatDeathSignature, AActor*, DeadActor);
 
+/**
+ * Component that manages actor health and damage processing.
+ * Integrates with Unreal's damage system and provides event broadcasting for health changes.
+ * 
+ * Key Features:
+ * - Health value management with min/max clamping
+ * - Integration with Unreal's OnTakeAnyDamage system
+ * - Death detection and event broadcasting
+ * - Healing functionality with overflow protection
+ * - Event bus integration for cross-system notifications
+ */
+
 UCLASS(ClassGroup=(Combat), meta=(BlueprintSpawnableComponent))
 class HEALTHSYSTEMMODULE_API UHSHealthComponent : public UActorComponent
 {

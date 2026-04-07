@@ -3,6 +3,17 @@
 #include "CoreMinimal.h"
 #include "ASCombatDamagePacket.generated.h"
 
+/**
+ * Data structure containing all damage-related information for combat calculations.
+ * Used throughout the combat system to pass damage data between modifiers and systems.
+ * 
+ * Supports:
+ * - Base and final damage tracking
+ * - Critical hit mechanics
+ * - Armor penetration
+ * - Modifier chain processing
+ */
+
 USTRUCT(BlueprintType)
 struct FASCombatDamagePacket
 {

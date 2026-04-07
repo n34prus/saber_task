@@ -16,6 +16,18 @@ public:
 	TMap<FGameplayTag, float> TotalStats;
 };
 
+/**
+ * Game instance subsystem for tracking and persisting player statistics.
+ * Monitors game events and automatically updates relevant statistics.
+ * 
+ * Key Features:
+ * - Session-based and total (persistent) statistics tracking
+ * - Automatic event monitoring via event bus integration
+ * - Save/load functionality for persistent statistics
+ * - Player-specific statistic filtering
+ * - Combat event integration (damage, death, critical hits)
+ */
+
 UCLASS()
 class STATISTICSYSTEMMODULE_API USSStatisticSubsystem : public UGameInstanceSubsystem
 {
@@ -54,10 +66,10 @@ private:
 	FTimerHandle ScanTimerHandle;
 	AActor* PlayerActor;
 
-	void BindToNewPlayer(AActor* OldPlayerActor, AActor* NewPlayerActor);
+	void UpdateBindings();
 	
-	void BindToCombatEvents();
-	void UnbindFromCombatEvents();
+	void BindToBusEvents();
+	void UnbindFromBusEvents();
 
 	UFUNCTION()
 	void Scan();

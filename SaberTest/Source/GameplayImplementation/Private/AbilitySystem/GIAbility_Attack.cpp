@@ -66,7 +66,6 @@ void UGIAbility_Attack::Activate()
 
 		const FVector From = OwnerActor->GetActorLocation();
 		FVector To = HitActor->GetActorLocation();
-		FVector Direction = (To - From).GetSafeNormal();
 		To.Z = From.Z;
 		FRotator LookAt = (To - From).Rotation();
 		OwnerActor->SetActorRotation(FRotator(0.f, LookAt.Yaw, 0.f));

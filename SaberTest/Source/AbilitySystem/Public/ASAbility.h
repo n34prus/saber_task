@@ -4,6 +4,16 @@
 #include "PTGameplayTags.h"
 #include "ASAbility.generated.h"
 
+/**
+ * Base class for all game abilities. Provides core ability functionality including:
+ * - Cooldown management
+ * - Activation validation
+ * - Animation playback support
+ * - Gameplay tag-based categorization
+ * 
+ * Abilities are typically managed by UASAbilityComponent and activated through various triggers.
+ */
+
 UCLASS(Abstract, Blueprintable)
 class ABILITYSYSTEMMODULE_API UASAbility : public UObject
 {

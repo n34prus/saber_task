@@ -7,6 +7,20 @@
 #include "CSCombatSubsystem.h"
 #include "GICombatArena.generated.h"
 
+/**
+ * Combat arena actor that manages enemy spawning and combat initiation.
+ * Triggers combat encounters when the player enters the arena area.
+ * 
+ * Key Features:
+ * - Trigger-based combat initiation
+ * - Dynamic enemy spawning based on difficulty
+ * - AI controller assignment to spawned enemies
+ * - Combat state monitoring
+ * - Automatic ground placement for spawned enemies
+ * - Combat subsystem integration
+ * - Post-combat UI display
+ */
+
 UCLASS()
 class GAMEPLAYIMPLEMENTATIONMODULE_API AGICombatArena : public AActor
 {
@@ -46,8 +60,8 @@ protected:
     virtual void Reset() override;
 
     void SpawnActors();
-    void BindToCombatSubsystem();
-    void UnbindFromCombatSubsystem();
+    void BindToBusEvents();
+    void UnbindFromBusEvents();
 
     UFUNCTION()
     void HandleCombatStateChanged(const FEBEventData& Event);

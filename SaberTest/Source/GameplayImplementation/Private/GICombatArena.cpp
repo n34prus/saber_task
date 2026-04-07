@@ -23,7 +23,7 @@ void AGICombatArena::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	BindToCombatSubsystem();
+	BindToBusEvents();
 
 	if (CombatSubsystem) return;
 	CombatSubsystem = UCSCombatSubsystem::Get(GetWorld());
@@ -85,7 +85,7 @@ void AGICombatArena::SpawnActors()
 	}
 }
 
-void AGICombatArena::BindToCombatSubsystem()
+void AGICombatArena::BindToBusEvents()
 {
 	if (UEBEventBusSubsystem* Bus = GetGameInstance()->GetSubsystem<UEBEventBusSubsystem>())
 	{
@@ -93,7 +93,7 @@ void AGICombatArena::BindToCombatSubsystem()
 	}
 }
 
-void AGICombatArena::UnbindFromCombatSubsystem()
+void AGICombatArena::UnbindFromBusEvents()
 {
 	if (UEBEventBusSubsystem* Bus = GetGameInstance()->GetSubsystem<UEBEventBusSubsystem>())
 	{

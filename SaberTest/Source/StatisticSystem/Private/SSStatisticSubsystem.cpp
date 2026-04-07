@@ -54,14 +54,14 @@ void USSStatisticSubsystem::ClearStats()
 	SessionStats.Empty();
 }
 
-void USSStatisticSubsystem::BindToNewPlayer(AActor* OldPlayerActor, AActor* NewPlayerActor)
+void USSStatisticSubsystem::UpdateBindings()
 {
-	UnbindFromCombatEvents();
-	BindToCombatEvents();
+	UnbindFromBusEvents();
+	BindToBusEvents();
 
 }
 
-void USSStatisticSubsystem::BindToCombatEvents()
+void USSStatisticSubsystem::BindToBusEvents()
 {
 	if (UEBEventBusSubsystem* Bus = GetGameInstance()->GetSubsystem<UEBEventBusSubsystem>())
 	{
@@ -72,7 +72,7 @@ void USSStatisticSubsystem::BindToCombatEvents()
 	}
 }
 
-void USSStatisticSubsystem::UnbindFromCombatEvents()
+void USSStatisticSubsystem::UnbindFromBusEvents()
 {
 	if (UEBEventBusSubsystem* Bus = GetGameInstance()->GetSubsystem<UEBEventBusSubsystem>())
 	{
@@ -85,7 +85,7 @@ void USSStatisticSubsystem::Scan()
 	AActor* NewPlayerActor = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 	if (NewPlayerActor && (PlayerActor != NewPlayerActor))
 	{
-		BindToNewPlayer(PlayerActor, NewPlayerActor);
+		UpdateBindings();
 		PlayerActor = NewPlayerActor;
 	}
 }

@@ -4,6 +4,16 @@
 #include "PTGameplayTags.h"
 #include "ASAbilityComponent.generated.h"
 
+/**
+ * Component that manages a collection of abilities for an actor.
+ * Handles ability lifecycle, activation, and organization.
+ * 
+ * Features:
+ * - Runtime ability addition/removal
+ * - Activation by class type or gameplay tag
+ * - Automatic initialization of starting abilities
+ */
+
 class UASAbility;
 
 UCLASS(ClassGroup=(Combat), meta=(BlueprintSpawnableComponent))

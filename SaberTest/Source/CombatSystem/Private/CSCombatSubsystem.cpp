@@ -97,7 +97,7 @@ bool UCSCombatSubsystem::StartCombat()
 {
 	if (CombatState == ECpCombatState::CpCombat_None)
 	{
-		BindToCombatEvents();
+		BindToBusEvents();
 		SetCombatState(ECpCombatState::CpCombat_Init);
 		return true;
 	}
@@ -109,7 +109,7 @@ bool UCSCombatSubsystem::StopCombat()
 	if (CombatState == ECpCombatState::CpCombat_Active)
 	{
 		SetCombatState(ECpCombatState::CpCombat_Finished);
-		UnbindFromCombatEvents();
+		UnbindFromBusEvents();
 		return true;
 	}
 	return false;
@@ -240,7 +240,7 @@ void UCSCombatSubsystem::CheckFinishCondition()
 	}
 }
 
-void UCSCombatSubsystem::BindToCombatEvents()
+void UCSCombatSubsystem::BindToBusEvents()
 {
 	if (UEBEventBusSubsystem* Bus = GetGameInstance()->GetSubsystem<UEBEventBusSubsystem>())
 	{
@@ -248,7 +248,7 @@ void UCSCombatSubsystem::BindToCombatEvents()
 	}
 }
 
-void UCSCombatSubsystem::UnbindFromCombatEvents()
+void UCSCombatSubsystem::UnbindFromBusEvents()
 {
 	if (UEBEventBusSubsystem* Bus = GetGameInstance()->GetSubsystem<UEBEventBusSubsystem>())
 	{

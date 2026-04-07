@@ -44,13 +44,11 @@ void AGICombatAIController::Tick(float DeltaSeconds)
 	if (Dist > OuterRadius)
 	{
 		bWasInner = false;
-		const FVector TargetPos = PlayerLoc - ToPlayer * ((InnerRadius + OuterRadius) * 0.5f);
 		ControlledPawn->AddMovementInput(ToPlayer);
 	}
 	// inner
 	else if (Dist < InnerRadius)
 	{
-		const FVector TargetPos = PlayerLoc - ToPlayer * OuterRadius;
 		ControlledPawn->AddMovementInput(ToPlayer, -0.75f);
 
 		float RandVal = bWasInner ? 1.f : FMath::FRand();

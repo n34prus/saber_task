@@ -11,6 +11,20 @@ class UCameraComponent;
 class USpringArmComponent;
 class UHSHealthComponent;
 
+/**
+ * Character class with integrated combat systems (can be controlled by AI or Player both).
+ * Provides movement, camera control, combat abilities, health, and damage modifiers.
+ * 
+ * Key Features:
+ * - Third-person camera setup with spring arm
+ * - Integrated health, ability, and damage modifier components
+ * - Input handling for movement and combat actions
+ * - Combat state awareness for ability restrictions
+ * - Automatic hit reactions on damage
+ * - Death handling with ragdoll physics
+ * - Controller rotation configuration for proper camera control
+ */
+
 UCLASS()
 class GAMEPLAYIMPLEMENTATIONMODULE_API AGICombatCharacter : public ACharacter
 {

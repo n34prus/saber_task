@@ -4,6 +4,16 @@
 #include "ASDamageModifier.h"
 #include "ASDamageModifierComponent.generated.h"
 
+/**
+ * Component that manages a collection of damage modifiers for an actor.
+ * Processes damage through all registered modifiers in sequence.
+ * 
+ * Supports:
+ * - Automatic initialization of default modifiers
+ * - Runtime modifier addition/removal
+ * - Separate processing for outgoing and incoming damage
+ */
+
 UCLASS(Blueprintable, ClassGroup=(Combat))
 class ABILITYSYSTEMMODULE_API UASDamageModifierComponent : public UActorComponent
 {

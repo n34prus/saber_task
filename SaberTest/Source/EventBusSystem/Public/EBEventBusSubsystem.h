@@ -5,6 +5,12 @@
 #include "GameplayTagContainer.h"
 #include "EBEventBusSubsystem.generated.h"
 
+/**
+ * Generic event data structure for cross-system communication.
+ * Supports multiple data types and object references for flexible messaging.
+ * Can be extended to struct of TMaps <Fname,type> for complicated usecases
+ */
+
 USTRUCT(BlueprintType)
 struct FEBEventData
 {
@@ -31,6 +37,18 @@ struct FEBEventData
 };
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FEBOnEvent, const FEBEventData&);
+
+/**
+ * Game instance subsystem providing a centralized event messaging system.
+ * Enables loosely-coupled communication between different systems using gameplay tags.
+ * 
+ * Key Features:
+ * - Topic-based event channels using gameplay tags
+ * - Type-safe subscription with UObject method binding
+ * - Lambda/functor subscription support
+ * - Automatic cleanup of dead object subscriptions
+ * - Publish/subscribe pattern implementation
+ */
 
 UCLASS()
 class EVENTBUSSYSTEMMODULE_API UEBEventBusSubsystem : public UGameInstanceSubsystem

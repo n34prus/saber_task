@@ -9,6 +9,7 @@ class UHSHealthComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDifficultyChangedSignature, float, NewDifficulty);
 
+// Combat state flow:
 // None -> (player cross trigger) ->
 // Init -> (play sfx/ prepare anims/ smth else) ->
 // Active -> (broadcast "start" event to combat members -> combat -> some team is dead) -> 
@@ -24,6 +25,18 @@ enum class ECpCombatState : uint8
 	CpCombat_Finished    UMETA(DisplayName = "Finished"),
 	CpCombat_Resulting   UMETA(DisplayName = "Resulting")
 };
+
+/**
+ * Game instance subsystem that manages the overall combat system.
+ * Handles combat state transitions, participant registration, damage processing, and difficulty scaling.
+ * 
+ * Key Responsibilities:
+ * - Combat session lifecycle management
+ * - Participant registration and tracking
+ * - Centralized damage calculation with modifier support
+ * - Combat state machine with event broadcasting
+ * - Difficulty adjustment system
+ */
 
 UCLASS()
 class COMBATSYSTEMMODULE_API UCSCombatSubsystem : public UGameInstanceSubsystem
@@ -89,8 +102,8 @@ protected:
 	
 	void CheckFinishCondition();	// hardcode now, but can be reworked as functor
 
-	void BindToCombatEvents();
-	void UnbindFromCombatEvents();
+	void BindToBusEvents();
+	void UnbindFromBusEvents();
 
 	void HandleDeath(const FEBEventData& Event);
 	
