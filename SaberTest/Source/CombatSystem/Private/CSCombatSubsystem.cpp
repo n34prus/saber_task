@@ -226,17 +226,14 @@ void UCSCombatSubsystem::CheckFinishCondition()
 	if (!PlayerActor) return;
 
 	// player is dead
-	if (!CombatMembers.Find(PlayerActor))
+	if (!CombatMembers.Find(PlayerActor) || CombatMembers.Num() <= 1)
 	{
-		StopCombat();
-		return;
-	}
-
-	// only one member left - probably player
-	if (CombatMembers.Num() <= 1)
-	{
-		StopCombat();
-		return;
+		GetWorld()->GetTimerManager().SetTimerForNextTick(
+			FTimerDelegate::CreateWeakLambda(this, [this]()
+			{
+				StopCombat();
+			})
+		);
 	}
 }
 
