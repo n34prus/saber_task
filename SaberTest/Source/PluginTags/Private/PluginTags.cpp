@@ -17,4 +17,4 @@ void FPluginTagsModule::ShutdownModule()
 
 #undef LOCTEXT_NAMESPACE
 	
-IMPLEMENT_MODULE(FPluginTagsModule, PluginTags)
+IMPLEMENT_MODULE(FPluginTagsModule, PluginTagsModule)

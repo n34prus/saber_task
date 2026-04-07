@@ -17,4 +17,4 @@ void FEventBusSystemModule::ShutdownModule()
 
 #undef LOCTEXT_NAMESPACE
 	
-IMPLEMENT_MODULE(FEventBusSystemModule, EventBusSystem)
+IMPLEMENT_MODULE(FEventBusSystemModule, EventBusSystemModule)

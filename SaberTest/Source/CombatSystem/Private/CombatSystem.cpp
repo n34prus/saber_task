@@ -17,4 +17,4 @@ void FCombatSystemModule::ShutdownModule()
 
 #undef LOCTEXT_NAMESPACE
 	
-IMPLEMENT_MODULE(FCombatSystemModule, CombatSystem)
+IMPLEMENT_MODULE(FCombatSystemModule, CombatSystemModule)

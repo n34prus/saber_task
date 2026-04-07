@@ -17,4 +17,4 @@ void FAbilitySystemModule::ShutdownModule()
 
 #undef LOCTEXT_NAMESPACE
 	
-IMPLEMENT_MODULE(FAbilitySystemModule, AbilitySystem)
+IMPLEMENT_MODULE(FAbilitySystemModule, AbilitySystemModule)

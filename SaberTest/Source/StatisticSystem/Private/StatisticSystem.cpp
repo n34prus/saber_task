@@ -17,4 +17,4 @@ void FStatisticSystemModule::ShutdownModule()
 
 #undef LOCTEXT_NAMESPACE
 	
-IMPLEMENT_MODULE(FStatisticSystemModule, StatisticSystem)
+IMPLEMENT_MODULE(FStatisticSystemModule, StatisticSystemModule)

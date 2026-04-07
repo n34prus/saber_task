@@ -17,4 +17,4 @@ void FHealthSystemModule::ShutdownModule()
 
 #undef LOCTEXT_NAMESPACE
 	
-IMPLEMENT_MODULE(FHealthSystemModule, HealthSystem)
+IMPLEMENT_MODULE(FHealthSystemModule, HealthSystemModule)

@@ -17,4 +17,4 @@ void FGameplayImplementationModule::ShutdownModule()
 
 #undef LOCTEXT_NAMESPACE
 	
-IMPLEMENT_MODULE(FGameplayImplementationModule, GameplayImplementation)
+IMPLEMENT_MODULE(FGameplayImplementationModule, GameplayImplementationModule)
